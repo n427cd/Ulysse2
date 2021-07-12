@@ -24,7 +24,7 @@ class SelectedIndex {
    /// index du segment sélectionné. `nil` si pas de sélection active
    var segment : Int?
 
-   /// Initiliation : pas de sélection par défaut
+   /// Initialisation : pas de sélection par défaut
    init() {}
 }
 
@@ -47,13 +47,13 @@ struct ScannedMapView: View {
 
    var currentCenter : CLLocationCoordinate2D      // coord. (lat lon) du centre de la carte
    var initialCenter : CLLocationCoordinate2D      // coord. du point initial à afficher
-   @State private var centreImage = CGPoint()      // coord. (x,y) du bitmap au centre de la vue
 
    let cgimg : CGImage
 
    let X_A, X_B : Double       // coeff. de transformation (longitude) -> (eastings) x = g x X_A + X_B
    let Y_A, Y_B : Double       // coeff. de transformation (Lat croissante) -> (northings) y = LC x Y_A + Y_B
 
+   @State private var centreImage = CGPoint()      // coord. (x,y) du bitmap au centre de la vue
 
    @State private var currentAmount: CGFloat = 1
    @State private var currentZoomFactor: CGFloat = 1
@@ -61,7 +61,7 @@ struct ScannedMapView: View {
    @State var inverseZoomFactor : CGFloat = 1.0
 
    @State private var deplacement : CGSize = .zero     // valeur du déplacement en cours
-   @State private var userOffset : CGSize = .zero      // valeur du déplacement cumulé jusqu'au précent déplacement terminé
+   @State private var userOffset : CGSize = .zero      // valeur du déplacement cumulé jusqu'au dernier déplacement terminé
 
    var navigation : Route?
    var bDisplayRoute = false
@@ -155,27 +155,9 @@ struct ScannedMapView: View {
    init(mapCenter: CLLocationCoordinate2D, route : Route? = nil, showRoute : Bool = false)
    {
       #warning("Utilisation de la carte Atlantique1")
-      fileName = "Atlantique1"
-      image = UIImage(named: fileName!)
-      mapPixelSize = image?.size
 
-      cgimg = image.cgImage!
+      self.init(assetName: "Atlantique1", mapCenter: mapCenter, 1150, 7000, -66185.8, 65131.085, route: route, showRoute: showRoute)
 
-      // données d'étalonage
-      X_A = 1150
-      X_B = 7000
-      Y_A = -66185.8
-      Y_B = 65131.085
-
-      currentCenter = mapCenter
-      initialCenter = mapCenter
-      centreImage.x = 1
-      centreImage = projectOnMap(currentCenter.latitude, currentCenter.longitude)
-      userOffset = .zero
-      deplacement = .zero
-
-      navigation = route
-      bDisplayRoute = showRoute
    }
 
 
@@ -417,21 +399,23 @@ struct ScannedMapView: View {
          drawWaypoints(context: context, geometry: geometry)
       }
 
-      // les autres couches vectorielles 
+      //TODO: les autres couches vectorielles
 
       croppedImage = UIGraphicsGetImageFromCurrentImageContext()!
       UIGraphicsEndImageContext()
    }
 
 
-   //-----------------------------------------------------------------------
-   //
-   // Construction de l'image qui sera affichée
-   //
-   //-----------------------------------------------------------------------
+
+   /// Construit le fond de carte qui convient au centre de la carte et à
+   /// la taille de la fenêtre, avec les différentes couches d'informations
+   /// supplémentaires
+   /// - parameter geometry : géométrie de la vue
+   /// - returns : `Image?` contenant la carte et les différentes couches
+   ///              d'information
 
    func drawCroppedMap(geometry : GeometryProxy) ->  Image? {
-      guard let _ = fileName else { return Image("")}
+      guard let _ = fileName else { return Image(systemName : "exclamationmark.circle")}
 
       let croppingRect : CGRect = CGRect(
          x: (centreImage.x - deplacement.width) - geometry.size.width / 2 * inverseZoomFactor,
@@ -450,7 +434,10 @@ struct ScannedMapView: View {
          return Image(uiImage: croppedImage)
       }
 
-      return Image("")
+      // Si la couverture cartographique n'est pas suffisante, retourne une
+      // image qui l'indique
+
+      return Image(systemName:"rectangle.slash")
    }
 
    //MARK: - Gestion des interactions -
