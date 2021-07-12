@@ -113,7 +113,7 @@ struct ContentView: View {
          Text("Running old Swift (≤ 5.3)")
             .font(.caption)
          #endif
-         let info = modelData.infoData[0][1]
+         let info = modelData.infoData[0][0]
 
          Text("Description :\(info.sourceDescription)")
          Text("Publié : \(info.publishedOn!)")

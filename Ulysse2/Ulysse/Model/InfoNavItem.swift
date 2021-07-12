@@ -131,9 +131,9 @@ class  InfoNavParser: XMLParser {
    /// séparés par un `/`
    let regexID = try! NSRegularExpression(pattern: #"\d+/\d+"#)
    /// Regex pour les coordonnées géographiques au format long
-   let regexLong = try! NSRegularExpression(pattern: #"(\d+)[-\s](\d+)[\.,](\d+)'*([NnSs])[,\s-]+(\d+)[-\s](\d+)[\.,](\d+)'*([EeWw])"#)
+   let regexLong = try! NSRegularExpression(pattern: #"(\d+)[-\s](\d+)[\.,](\d+)'*\s*([NnSs])[,\s-]+(\d+)[-\s](\d+)[\.,](\d+)'*\s*([EeWw])"#)
    /// Regex pour les coordonnées géographiques au format court
-   let regexCourt = try! NSRegularExpression(pattern: #"(\d+)[-\s](\d+)([NnSs])[,\s-]+(\d+)[-\s](\d+)([EeWw])"#)
+   let regexCourt = try! NSRegularExpression(pattern: #"(\d+)[-\s](\d+)\s*([NnSs])[,\s-]+(\d+)[-\s](\d+)\s*([EeWw])"#)
 
 
    /// Recherche de coordonnées géographiques au format **long**
@@ -142,7 +142,8 @@ class  InfoNavParser: XMLParser {
    /// - returns : un couple de coordonnées, ou `(nil, nil)` si pas trouvé
    ///
    /// Le pattern long est : dd-mm.ssN ddd-mm.ssW, avec des variations autour
-   /// du point décimal, du séparateur de champ, et du nombre de décimales
+   /// du point décimal, du séparateur de champ, et du nombre de décimales.
+   /// Un espace peut aussi être présent avant la lettre d'hémisphère
    /// exemple : 46-30.5N 001-25.56W
 
    func searchLongFormatLatLon(s: String, range : NSRange) -> (Double?, Double?)
@@ -217,7 +218,7 @@ class  InfoNavParser: XMLParser {
             stop.pointee = true
          }
       }
-
+ 
       return (latitude, longitude)
    }
 

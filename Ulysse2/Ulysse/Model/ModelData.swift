@@ -157,33 +157,38 @@ class InformationDataSource : Codable {
       // on télécharge les informations à partir du flux RSS
 
       do {
-         let tempFeed = try downloadAndDecodeRssFeed(sourceURL())
+         let webFeed = try downloadAndDecodeRssFeed(sourceURL())
 
          lastCheckedServer = now
 
-         ///TODO #1 : vérifier la date de publicatin du feed et simplement
+         ///TODO #1 : vérifier la date de publication du feed et simplement
          ///       mettre à jour `lastCheckedServer` si le feed n'a pas été maj
 
          if(hasBackup)
          {
-            if(tempFeed.publishedOn != nil  &&
-                  (publishedOn! <= tempFeed.publishedOn!))
+            if(webFeed.publishedOn != nil  &&
+                  ((publishedOn! < webFeed.publishedOn!) ||
+                    publishedOn!.addingTimeInterval(86400) < now))
             {
-               // La version sauvegardée est plus ancienne.
-               // On la remplace par leflux qui vient d'être
+               // La version sauvegardée est plus ancienne,
+               // On la remplace par le flux qui vient d'être
                // téléchargé
+               // Parfois la date de publication du flux
+               // n'est pas mise à jour par la premar. On regarde
+                // donc si la date du flux n'est pas trop vieille
+                // (86400 = 1 journée)
 
-               publishedOn = tempFeed.publishedOn
-               sourceDescription = tempFeed.sourceDescription
+               publishedOn = webFeed.publishedOn
+               sourceDescription = webFeed.sourceDescription
 
-               let flux = Set<InfoNavItem>(tempFeed.items)
+               let flux = Set<InfoNavItem>(webFeed.items)
 
                let newItems = flux.subtracting(self.items)
                let oldItems = flux.intersection(self.items)
                let previousCount = items.count
 
                for item in oldItems { item.setNew(false) }
-               items = (Array(newItems) + Array(oldItems)).sorted(by:{                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
+               items = (Array(newItems) + Array(oldItems)).sorted(by:{                                                                     ($0.pubDate > $1.pubDate)})// || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
 
                // on sauvegarde si la liste des messages a évolué
                if (newItems.count > 0 || oldItems.count !=  previousCount) {
@@ -199,9 +204,9 @@ class InformationDataSource : Codable {
             // Si on n'a pas de sauvegarde, on récupère ce qui provient du flux
             // sauf si on n'a pas de flux...
             //if( tempFeed != nil) {
-               publishedOn = tempFeed.publishedOn
-               sourceDescription = tempFeed.sourceDescription
-               items = tempFeed.items
+               publishedOn = webFeed.publishedOn
+               sourceDescription = webFeed.sourceDescription
+            items = webFeed.items.sorted(by: {                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
                saveOnDisk()
                lastModifiedOn = now
             //}
