@@ -145,10 +145,13 @@ class InformationDataSource : Codable {
 
       //TODO: voir si on peut éviter le manque d'efficacité
 
+      var hasBackup = false
+
       if let savedFeed = loadFromDisk()
       {
          publishedOn = savedFeed.publishedOn
          items = savedFeed.items
+         hasBackup = true
       }
 
       // on télécharge les informations à partir du flux RSS
@@ -161,45 +164,54 @@ class InformationDataSource : Codable {
          ///TODO #1 : vérifier la date de publicatin du feed et simplement
          ///       mettre à jour `lastCheckedServer` si le feed n'a pas été maj
 
-         if(publishedOn != nil && tempFeed.publishedOn != nil  &&
-               (publishedOn! < tempFeed.publishedOn!))
+         if(hasBackup)
          {
-            // La version sauvegardée est plus ancienne. On la remplace par le
-            // flux qui vient d'être téléchargé
+            if(tempFeed.publishedOn != nil  &&
+                  (publishedOn! <= tempFeed.publishedOn!))
+            {
+               // La version sauvegardée est plus ancienne.
+               // On la remplace par leflux qui vient d'être
+               // téléchargé
 
-            publishedOn = tempFeed.publishedOn
-            sourceDescription = tempFeed.sourceDescription
+               publishedOn = tempFeed.publishedOn
+               sourceDescription = tempFeed.sourceDescription
 
-            let flux = Set<InfoNavItem>(tempFeed.items)
+               let flux = Set<InfoNavItem>(tempFeed.items)
 
-            let newItems = flux.subtracting(self.items)
-            let oldItems = flux.intersection(self.items)
-            let previousCount = items.count
+               let newItems = flux.subtracting(self.items)
+               let oldItems = flux.intersection(self.items)
+               let previousCount = items.count
 
-            for item in oldItems { item.setNew(false) }
-            items = (Array(newItems) + Array(oldItems)).sorted(by: {($0.pubDate > $1.pubDate) ||
-                                                                  ($0.pubDate == $1.pubDate && $0.id > $1.id) })
+               for item in oldItems { item.setNew(false) }
+               items = (Array(newItems) + Array(oldItems)).sorted(by:{                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
 
-            // on sauvegarde si la liste des messages a évolué
-            if (newItems.count > 0 || oldItems.count !=  previousCount) {
+               // on sauvegarde si la liste des messages a évolué
+               if (newItems.count > 0 || oldItems.count !=  previousCount) {
+                  saveOnDisk()
+                  lastModifiedOn = now
+               }
+            }
+
+            // Là, on a une sauvegarde qui est bonne, on ne change rien
+
+         }
+         else {
+            // Si on n'a pas de sauvegarde, on récupère ce qui provient du flux
+            // sauf si on n'a pas de flux...
+            //if( tempFeed != nil) {
+               publishedOn = tempFeed.publishedOn
+               sourceDescription = tempFeed.sourceDescription
+               items = tempFeed.items
                saveOnDisk()
                lastModifiedOn = now
-            }
+            //}
          }
-         else if publishedOn != nil{
-            publishedOn = tempFeed.publishedOn
-            sourceDescription = tempFeed.sourceDescription
-            items = tempFeed.items
-            saveOnDisk()
-            lastModifiedOn = now
-
-         }
-      } 
+      }
       catch downloadError.invalidURL {}
       catch downloadError.invalidSyntax {}
       catch {}
 
-      for i in items { print("\(i.title)")}
+      //for i in items { print("\(i.title)")}
    }
 
 
