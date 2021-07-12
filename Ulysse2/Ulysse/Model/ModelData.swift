@@ -150,7 +150,7 @@ class InformationDataSource : Codable {
       if let savedFeed = loadFromDisk()
       {
          publishedOn = savedFeed.publishedOn
-         items = savedFeed.items
+        items = savedFeed.items.sorted(by: {                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
          hasBackup = true
       }
 
@@ -188,7 +188,8 @@ class InformationDataSource : Codable {
                let previousCount = items.count
 
                for item in oldItems { item.setNew(false) }
-               items = (Array(newItems) + Array(oldItems)).sorted(by:{                                                                     ($0.pubDate > $1.pubDate)})// || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
+                let bufArray = Array(newItems) + Array(oldItems)
+               items = bufArray.sorted(by:{                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
 
                // on sauvegarde si la liste des messages a évolué
                if (newItems.count > 0 || oldItems.count !=  previousCount) {
