@@ -91,8 +91,11 @@ struct AvurnavList: View {
          )
          AvurnavListOptions()
       }
-
+      // savegarde des modifications apportées à la liste des informations pour
+      // assurer leur persistence (en particulier les favoris)
+      .onDisappear (perform: { modelData.infoData[region.rawValue][info.rawValue].saveOnDisk()})
    }
+    
 }
 
 struct AvurnavList_Previews: PreviewProvider {
