@@ -832,7 +832,7 @@ struct ScannedMapView: View {
                   }
 //                  if(selectedIndex.waypoint == nil && selectedIndex.segment == nil)
 //                  {
-//                     
+//
 //                  }
                }
 

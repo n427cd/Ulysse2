@@ -24,6 +24,11 @@ class Waypoint : Identifiable {
 
    var LC : CGFloat { log(tan(CGFloat(coord.latitude).deg2rad()/2 + .pi / 4 ))}
 
+
+   /// Initialisation du `Waypoint`
+   /// - parameter description : nom du waypoint
+   /// - parameter coord : coordonnées géographiques du waypoint
+
    init(description: String, coord: CLLocationCoordinate2D) {
       self.description = description
       self.coord = coord
@@ -43,11 +48,10 @@ class Waypoint : Identifiable {
    }
 
 
-   /// Calcul de la distance loxodromique aentre deux Waypoint
-   /// - parameter to: Waypoint duquel on détermine la distance
+   /// Calcul de la distance loxodromique entre deux waypoints
+   /// - parameter to: waypoint auquel on calcule la distance
    /// - returns : distance en mille nautique
    /// - source : Ed William's aviation formulary
-
    func distance(to: Waypoint) -> CGFloat {
       let dL = CGFloat(to.coord.latitude - coord.latitude)
       let dg = CGFloat(to.coord.longitude - coord.longitude)
