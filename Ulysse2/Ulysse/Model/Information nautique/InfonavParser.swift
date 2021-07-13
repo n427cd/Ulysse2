@@ -62,9 +62,9 @@ class  InfoNavParser: XMLParser {
    /// séparés par un `/`
    let regexID = try! NSRegularExpression(pattern: #"\d+/\d+"#)
    /// Regex pour les coordonnées géographiques au format long
-   let regexLong = try! NSRegularExpression(pattern: #"(\d+)[-\s](\d+)[\.,](\d+)'*\s*([NnSs])[,\s-]+(\d+)[-\s](\d+)[\.,](\d+)'*\s*([EeWw])"#)
+   let regexLong = try! NSRegularExpression(pattern: #"(\d+)[-\s]*(\d+)[\.,](\d+)'*\s*([NnSs])[,\s-]+(\d+)[-\s]*(\d+)[\.,](\d+)'*\s*([EeWw])"#)
    /// Regex pour les coordonnées géographiques au format court
-   let regexCourt = try! NSRegularExpression(pattern: #"(\d+)[-\s](\d+)\s*([NnSs])[,\s-]+(\d+)[-\s](\d+)\s*([EeWw])"#)
+   let regexCourt = try! NSRegularExpression(pattern: #"(\d+)[-\s]*(\d+)\s*([NnSs])[,\s-]+(\d+)[-\s]*(\d+)\s*([EeWw])"#)
 
 
    /// Recherche de coordonnées géographiques au format **long**
