@@ -12,6 +12,8 @@ let DEG2RAD : CGFloat = .pi / 180
 let RAD2DEG : CGFloat = 180 / .pi
 let EPSILON : CGFloat = 1e-6
 
+let INTERVAL_24HOURS : Double = 86400
+
 extension CGFloat {
     func deg2rad()->CGFloat {return DEG2RAD * self }
     func rad2deg()->CGFloat {return RAD2DEG * self }
