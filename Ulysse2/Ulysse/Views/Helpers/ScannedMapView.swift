@@ -199,16 +199,18 @@ struct ScannedMapView: View {
 
 
    fileprivate func drawSegmentInfo(context : CGContext, at: CGPoint, rv : CGFloat, distance : CGFloat, format : [NSAttributedString.Key : Any]? = nil ) {
-      let s = String(format : "%03.0f° / %.1f NM", rv + 0.5, distance + 0.05)
+
+      // On écrit les informations de cap et de distance dans un contexte
+      // graphique translaté et tourné selon l'angle de route
+
+      let s = String(format : "%03.0fT / %.1f NM", rv + 0.5, distance + 0.05)
       let textSize = s.size(withAttributes: format)
-
-      context.saveGState()
-
-      context.translateBy(x: at.x, y: at.y)
 
       let rotation : CGFloat
       let offset : CGPoint
 
+      // la taille de caractère est indépendante du facteur de zoom, seul
+      // l'espacement doit être adapté au facteur de zoom
       switch(rv) {
       case 0...180 :
          rotation = rv - 90
@@ -218,7 +220,12 @@ struct ScannedMapView: View {
          offset = CGPoint(x:8/inverseZoomFactor, y: -(textSize.height + 2.5 / inverseZoomFactor))
       }
 
+      // on modifie le contexte, ttranslate et rotationne, on écrit et on
+      // revient au contexte précédent
+      
+      context.saveGState()
 
+      context.translateBy(x: at.x, y: at.y)
       context.rotate(by: rotation.deg2rad())
 
       s.draw(at: offset, withAttributes: format)
