@@ -572,23 +572,32 @@ struct ScannedMapView: View {
    }
 
 
-   //-----------------------------------------------------------------------
-   //
-   //-----------------------------------------------------------------------
 
-   fileprivate func saveZoomLevel() {
-      self.currentZoomFactor *= self.currentAmount
-      self.currentAmount = 1
+   /// Met à jour le niveau de zoom
+   ///
+   /// L'évolution est multiplicative, c'est à dire que le zoom est
+   /// mutiplié par `currentAmount`
+
+   fileprivate func updateZoomLevel() {
+      currentZoomFactor *= currentAmount
+      currentAmount = 1
       inverseZoomFactor = 1/currentZoomFactor
    }
 
-   //-----------------------------------------------------------------------
-   //
-   //-----------------------------------------------------------------------
+   /// Vérifie si deux points à l'écran peuvent être considérés voisins
+   ///
+   /// - parameter p : coordonnées écran du premier point
+   /// - parameter q : coordonnées écran du second point
+   ///
+   /// - returns `true` si les deux points sont proches, '`false` sinon
+   ///
+   /// On regarde si le carré de la distance entre les points est inférieur
+   /// au seuil défini
 
-   func areCloseEnough(_ p : CGPoint, _ q : CGPoint) -> Bool {
-
-      return (p.x - q.x) * (p.x - q.x)  + (p.y - q.y) * (p.y - q.y) < 200
+   func areNeighbours(_ p : CGPoint, _ q : CGPoint) -> Bool {
+      /// carré de la distance de la boule
+      let VICINITY : CGFloat = 200
+      return (p.x - q.x) * (p.x - q.x)  + (p.y - q.y) * (p.y - q.y) < VICINITY
    }
 
 
@@ -601,35 +610,41 @@ struct ScannedMapView: View {
     - parameter location : `CGPoint` position du tap de l'utilisateur
     - parameter geometry : géométrie de la fenêtre
 
-    - returns : l'index du waypoint sélectionné dans la route. Si le point choisi ne correspond pas à un waypoint à l'écran, retourne `nil`
+    - returns : l'index du waypoint sélectionné dans la route. Si le point choisi
+                ne correspond pas à un waypoint à l'écran, retourne `nil`
 
     S'il y a besoin de rafraîchir la sélection, on calcule l'index en
     parcourant la liste des waypoints pour regarder si l'un d'entre eux
     se trouve à proximité du point indiqué par l'utilisateur
 
-    - Important : l'index n'est pas mis à jour par la fonction. Il doit être mis à jour spécifiquement, par exemple :
+    - Important : l'index n'est pas mis à jour par la fonction. Il doit être mis
+      à jour spécifiquement, par exemple :
 
          ````
-         `selectedIndex.segment = findSelectedSegment(update: true,
+         `selectedIndex.waypoint = findSelectedWaypoint(update: true,
                                           drag!.startLocation, geometry)
          ````
     */
 
    func findSelectedWaypoint(compute : Bool, _ location : CGPoint? = nil, _ geometry : GeometryProxy? = nil) -> Int? {
 
-      if(navigation == nil) {return nil}
+      guard let _ = navigation else { return nil}
+
+      // si on doit déterminer l'index, on lance le calcul, et on retourne
+      // la valeur trouvée sans modifier `selectedIndex.waypoint`
 
       if(compute == true)
       {
-         var value : Int? = nil
-         var noSeq = 0
+         guard let _ = location else { return nil }
 
-         if(location == nil) { return  nil}
+         var value : Int?
+         var noSeq = 0
 
          for w : Waypoint in navigation!.segments
          {
+            // on récupère les coordonnées à l'écran du waypoint
             let p = projectOnClippedMap(waypoint: w, geometry: geometry!)
-            if( areCloseEnough( location!, p )) {
+            if( areNeighbours( location!, p )) {
                 value = noSeq
                break
             }
@@ -637,8 +652,10 @@ struct ScannedMapView: View {
          }
          return value
       }
-      // on retourne l'index
-      return selectedIndex.waypoint
+      // on veut juste la dernière valeur de l'index qu'on retourne
+      else {
+         return selectedIndex.waypoint
+      }
    }
 
    //-----------------------------------------------------------------------
@@ -813,14 +830,16 @@ struct ScannedMapView: View {
                      insertWaypoint(drag.location, geometry)
                      selectedIndex.segment = nil
                   }
+//                  if(selectedIndex.waypoint == nil && selectedIndex.segment == nil)
+//                  {
+//                     
+//                  }
                }
 
             drawCroppedMap(geometry: geometry)
                .onAppear(perform: appear)
                .clipped()
-               .onTapGesture(count: 2, perform: {
-                  toggleZoom()
-               })
+               .onTapGesture(count: 2, perform: { toggleZoom() })
                .gesture(longPressDrag)
                .onLongPressGesture(minimumDuration: 1, maximumDistance: 10, perform: {
                   //TODO: #10 afficher le menu contextuel
@@ -845,7 +864,7 @@ struct ScannedMapView: View {
                         setZoomLevel(amount)
                      }
                      .onEnded ({ _ in
-                        saveZoomLevel()
+                        updateZoomLevel()
                      })
                )
          }
