@@ -168,7 +168,7 @@ class InformationDataSource : Codable {
          {
             if(webFeed.publishedOn != nil  &&
                   ((publishedOn! < webFeed.publishedOn!) ||
-                    publishedOn!.addingTimeInterval(86400) < now))
+                    publishedOn!.addingTimeInterval(INTERVAL_24HOURS) < now))
             {
                // La version sauvegardée est plus ancienne,
                // On la remplace par le flux qui vient d'être
@@ -308,11 +308,6 @@ final class ModelData : ObservableObject {
 //         async temp[2].downloadFeed()
 //         wait infoData.append(temp)
       }
-
-      // Bidon, pour essai seulement
-      // >>>>>
-      infoData[0][0].downloadFeed()
-      // <<<<<
    }
 }
 
