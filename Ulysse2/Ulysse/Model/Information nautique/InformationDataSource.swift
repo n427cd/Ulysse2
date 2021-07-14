@@ -186,7 +186,9 @@ class InformationDataSource : Codable {
 
                for item in oldItems { item.setNew(false) }
                let bufArray = Array(newItems) + Array(oldItems)
-               items = bufArray.sorted(by:{                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
+               items = bufArray.sorted(by:{
+                                          ($0.pubDate > $1.pubDate) ||
+                                             ($0.pubDate == $1.pubDate && $0.id > $1.id) })
 
                // on sauvegarde si la liste des messages a évolué
                if (newItems.count > 0 || oldItems.count !=  previousCount) {
@@ -204,7 +206,9 @@ class InformationDataSource : Codable {
             //if( tempFeed != nil) {
             publishedOn = webFeed.publishedOn
             sourceDescription = webFeed.sourceDescription
-            items = webFeed.items.sorted(by: {                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
+            items = webFeed.items.sorted(by: {
+                                          ($0.pubDate > $1.pubDate) ||
+                                             ($0.pubDate == $1.pubDate && $0.id > $1.id) })
             saveOnDisk()
             lastModifiedOn = now
             //}
