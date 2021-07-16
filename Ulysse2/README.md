@@ -6,19 +6,19 @@ Application iOS pour la préparation et le suivi de navigations nautiques, propo
 
 ### Sprint 1 :
 #### Avis aux navigateurs
-- récupération des avis aux navigateurs des différentes régions, de manière asynchrone #19
-- sauvegarde des avis lus et téléchargés https://github.com/n427cd/Ulysse2/issues/20#issue-946548150
+- [ ] récupération des avis aux navigateurs des différentes régions, de manière asynchrone #19
+- [ ] sauvegarde des avis lus et téléchargés https://github.com/n427cd/Ulysse2/issues/20#issue-946548150
 #### Cartographie
-- affichage d'une carte, différents niveaux de zooms, système de tuiles éventuellement adapté
-- affichage de la route, et du log de nav avec fonctions essentielles : validation du passage d'un waypoint, marquage de la position actuelle
-- affichage à la demande du cône d'incertitude de l'estime, par exemple à ± 5°
-- modification de la route : ajout, déplacement suppression de waypoint
+- [ ] affichage d'une carte, différents niveaux de zooms, système de tuiles éventuellement adapté
+- [ ] affichage de la route, et du log de nav avec fonctions essentielles : validation du passage d'un waypoint, marquage de la position actuelle
+- [ ] affichage à la demande du cône d'incertitude de l'estime, par exemple à ± 5°
+- [ ] modification de la route : ajout, déplacement suppression de waypoint
 #### Météo
-- affichage du bulletin météo, général, de la zone
-- récupération de la carte radar
-- récupération du tableau de prévision hauteur de vagues, mer du vent, rafales, etc...
+- [ ] affichage du bulletin météo, général, de la zone
+- [ ] récupération de la carte radar
+- [ ] récupération du tableau de prévision hauteur de vagues, mer du vent, rafales, etc...
 #### Marée
-- affichage des heures de marées d'un lieu, calcul de hauteur d'eau / durée
+- [ ] affichage des heures de marées d'un lieu, calcul de hauteur d'eau / durée
 
 ### Sprint 2 : 
 #### Interface utilisateur
