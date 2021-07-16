@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		07AF33CD2693279A00BE5AD4 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AF33CB2693279A00BE5AD4 /* Route.swift */; };
-		07AF33CE2693279A00BE5AD4 /* WeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AF33CC2693279A00BE5AD4 /* WeatherData.swift */; };
 		07AF33D3269327C700BE5AD4 /* TideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AF33D2269327C700BE5AD4 /* TideView.swift */; };
 		07AF33D8269327EB00BE5AD4 /* AvurnavListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AF33D7269327EB00BE5AD4 /* AvurnavListOptions.swift */; };
 		07AF33DD2693282C00BE5AD4 /* NumbersExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AF33DC2693282C00BE5AD4 /* NumbersExtension.swift */; };
@@ -34,6 +33,9 @@
 		07C44692264194F600D44FE7 /* AvurnavDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C44691264194F600D44FE7 /* AvurnavDetail.swift */; };
 		07C446BB2642C30700D44FE7 /* PinButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C446BA2642C30700D44FE7 /* PinButton.swift */; };
 		07C446C52642CE4700D44FE7 /* ToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C446C42642CE4700D44FE7 /* ToggleButton.swift */; };
+		4AAA413726A1CB0900E6F551 /* GesturesExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAA413426A1CB0900E6F551 /* GesturesExt.swift */; };
+		4AAA413826A1CB0900E6F551 /* RouteLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAA413526A1CB0900E6F551 /* RouteLayer.swift */; };
+		4AAA413926A1CB0900E6F551 /* SelectedIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAA413626A1CB0900E6F551 /* SelectedIndex.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,7 +57,6 @@
 
 /* Begin PBXFileReference section */
 		07AF33CB2693279A00BE5AD4 /* Route.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
-		07AF33CC2693279A00BE5AD4 /* WeatherData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherData.swift; sourceTree = "<group>"; };
 		07AF33D2269327C700BE5AD4 /* TideView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TideView.swift; sourceTree = "<group>"; };
 		07AF33D7269327EB00BE5AD4 /* AvurnavListOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AvurnavListOptions.swift; sourceTree = "<group>"; };
 		07AF33DC2693282C00BE5AD4 /* NumbersExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumbersExtension.swift; sourceTree = SOURCE_ROOT; };
@@ -89,6 +90,9 @@
 		07C446BA2642C30700D44FE7 /* PinButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinButton.swift; sourceTree = "<group>"; };
 		07C446C42642CE4700D44FE7 /* ToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleButton.swift; sourceTree = "<group>"; };
 		07C446CC2642F19800D44FE7 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
+		4AAA413426A1CB0900E6F551 /* GesturesExt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GesturesExt.swift; sourceTree = "<group>"; };
+		4AAA413526A1CB0900E6F551 /* RouteLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteLayer.swift; sourceTree = "<group>"; };
+		4AAA413626A1CB0900E6F551 /* SelectedIndex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectedIndex.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,19 +139,13 @@
 			path = "Information nautique";
 			sourceTree = "<group>";
 		};
-		07C2DEF9269DC1BC001C8404 /* Météo */ = {
-			isa = PBXGroup;
-			children = (
-				07AF33CC2693279A00BE5AD4 /* WeatherData.swift */,
-			);
-			name = "Météo";
-			path = "Météo";
-			sourceTree = "<group>";
-		};
 		07C2DF00269DC202001C8404 /* Cartographie */ = {
 			isa = PBXGroup;
 			children = (
 				07B84674266F4E5A00CD6C67 /* ScannedMapView.swift */,
+				4AAA413426A1CB0900E6F551 /* GesturesExt.swift */,
+				4AAA413526A1CB0900E6F551 /* RouteLayer.swift */,
+				4AAA413626A1CB0900E6F551 /* SelectedIndex.swift */,
 			);
 			path = Cartographie;
 			sourceTree = "<group>";
@@ -232,10 +230,10 @@
 		07C4466A2641845800D44FE7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				4AAA413326A1CAA800E6F551 /* Météo */,
 				07C44664264183C700D44FE7 /* ModelData.swift */,
 				07C2DEF5269DC1A0001C8404 /* Information nautique */,
 				07C2DEF1269DC183001C8404 /* Navigation */,
-				07C2DEF9269DC1BC001C8404 /* Météo */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -268,6 +266,14 @@
 				07C446CC2642F19800D44FE7 /* SearchBar.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		4AAA413326A1CAA800E6F551 /* Météo */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Météo";
+			path = "Météo";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -402,9 +408,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				07C44607263FD4E100D44FE7 /* AppDelegate.swift in Sources */,
-				07AF33CE2693279A00BE5AD4 /* WeatherData.swift in Sources */,
+				4AAA413826A1CB0900E6F551 /* RouteLayer.swift in Sources */,
 				07C4463F263FDF6400D44FE7 /* CircleImage.swift in Sources */,
 				07C44644263FE0D000D44FE7 /* MapView.swift in Sources */,
+				4AAA413726A1CB0900E6F551 /* GesturesExt.swift in Sources */,
 				07AF33DD2693282C00BE5AD4 /* NumbersExtension.swift in Sources */,
 				07C446C52642CE4700D44FE7 /* ToggleButton.swift in Sources */,
 				07C44609263FD4E100D44FE7 /* SceneDelegate.swift in Sources */,
@@ -422,6 +429,7 @@
 				07C4467526418A9500D44FE7 /* AvurnavList.swift in Sources */,
 				07C44665264183C700D44FE7 /* ModelData.swift in Sources */,
 				07C2DEE8269DBAFF001C8404 /* InformationDataSource.swift in Sources */,
+				4AAA413926A1CB0900E6F551 /* SelectedIndex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

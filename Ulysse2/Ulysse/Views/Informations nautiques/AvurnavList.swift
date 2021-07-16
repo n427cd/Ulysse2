@@ -91,6 +91,9 @@ struct AvurnavList: View {
          )
          AvurnavListOptions()
       }
+      .onAppear() {
+        modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
+      }
       // savegarde des modifications apportées à la liste des informations pour
       // assurer leur persistence (en particulier les favoris)
       .onDisappear (perform: { modelData.infoData[region.rawValue][info.rawValue].saveOnDisk()})

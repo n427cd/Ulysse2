@@ -21,13 +21,18 @@ final class ModelData : ObservableObject {
 
    init() {
 
-      // Téléchargement des informations aux navigateurs
+      // Les sauvegardes sont lues lors de l'initialisation. La mise à jour
+    // du flux RSS a lieu lors de l'ouverture de la vue `AvurnavList`
 
       for region in Premar.allCases {
          var temp : [InformationDataSource] = []
+        
          for category in typeInformation.allCases {
             temp.append(InformationDataSource(region: region, info: category))
-            temp[category.rawValue].downloadFeed()
+            
+            if let savedFeed = temp[category.rawValue].loadFromDisk() {
+                temp[category.rawValue] = savedFeed
+            }
          }
 
          infoData.append(temp)
