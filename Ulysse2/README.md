@@ -6,7 +6,7 @@ Application iOS pour la préparation et le suivi de navigations nautiques, propo
 
 ### Sprint 1 :
 #### Avis aux navigateurs
-- récupération des avis aux navigateurs des différentes régions, de manière asynchrone
+- récupération des avis aux navigateurs des différentes régions, de manière asynchrone #19
 - sauvegarde des avis lus et téléchargés
 #### Cartographie
 - affichage d'une carte, différents niveaux de zooms, système de tuiles éventuellement adapté
