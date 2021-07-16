@@ -5,28 +5,11 @@
 //  Created by Eric Duchenne on 08/06/2021.
 //
 
+import Foundation
 import SwiftUI
 import CoreGraphics
 import CoreLocation
-import Foundation
-import UIKit
 
-
-/// Encapsulation des index pour la sélection des waypoints ou des segments
-///
-/// Autorise la modification des index dans la vue
-/// - Remark : Permet de corriger le hack qui consistait à passer par une variable statique
-
-class SelectedIndex {
-   /// index du waypoint sélectionné. `nil` si pas de sélection active
-   var waypoint : Int?
-
-   /// index du segment sélectionné. `nil` si pas de sélection active
-   var segment : Int?
-
-   /// Initialisation : pas de sélection par défaut
-   init() {}
-}
 
 
 /// Vue permettant la manipulation de cartes scannées
@@ -36,11 +19,11 @@ class SelectedIndex {
 
 struct ScannedMapView: View {
 
-    /// Index d'une éventuelle sélection de segment ou de waypoint
+   /// Index d'une éventuelle sélection de segment ou de waypoint
    let selectedIndex = SelectedIndex()
 
    var fileName : String?          // nom de la carte
-   let image : UIImage!            // UIImage sur laquelle est construite la vue
+
    var mapPixelSize : CGSize?      // taille de la carte en pixels
 
    let generator = UISelectionFeedbackGenerator()
@@ -67,49 +50,6 @@ struct ScannedMapView: View {
    var bDisplayRoute = false
 
 
-
-   enum DragState {
-      case inactive
-      case pressing
-      case dragging(translation: CGSize, location : CGPoint)
-
-      var translation: CGSize {
-         switch self {
-         case .inactive, .pressing:
-            return .zero
-         case .dragging(let translation, _):
-            return translation
-         }
-      }
-
-      var location : CGPoint {
-         switch self {
-         case .inactive, .pressing:
-            return .zero
-         case .dragging(_, let location):
-            return location
-         }
-      }
-
-      var isActive: Bool {
-         switch self {
-         case .inactive:
-            return false
-         case .pressing, .dragging:
-            return true
-         }
-      }
-
-      var isDragging: Bool {
-         switch self {
-         case .inactive, .pressing:
-            return false
-         case .dragging:
-            return true
-         }
-      }
-   }
-
    @GestureState var dragState = DragState.inactive
 
 
@@ -126,10 +66,10 @@ struct ScannedMapView: View {
       //TODO #4 : gérer les erreurs au chargement des cartes
 
       fileName = assetName
-      image = UIImage(named: assetName)
+      let image = UIImage(named: assetName)
       mapPixelSize = image?.size
 
-      cgimg = image.cgImage!
+      cgimg = image!.cgImage!
 
       X_A = alphaX          // coefficients de conversion coordonnées géographiques <-> pixels
       X_B = betaX
@@ -164,253 +104,6 @@ struct ScannedMapView: View {
    //MARK: - Dessin de la carte affichée -
 
 
-   //-----------------------------------------------------------------------
-   /// Retourne l'étiquette du waypoint à afficher. Le départ s'affiche avec un D, l'arrivée avec un A et
-   /// chaque point par son numéro de séquence
-   /// - parameter index : numéro du waypoint dans la route
-   /// - returns: une chaîne contenant l'étiquette à afficher
-
-   fileprivate func waypointLabel(_ index: Int) -> String {
-      switch index {
-      case 0:
-         return "D"
-      case navigation!.segments.count - 1 :
-         return "A"
-      default:
-         return String(format:"%d", index)
-      }
-   }
-
-
-   //-----------------------------------------------------------------------
-   /// Dessine les informations de cap et de distance à l'extrémité du segment
-   /// - parameter context : contexte actif dans lequel a lieu l'affichage
-   /// - parameter at : position de référence du waypoint. Le texte est déplacé
-   ///                  de manière à laisser le waypoint visible et à s'adapter
-   ///                  à l'angle de route (rv)
-   /// - parameter rv : route vraie à afficher
-   /// - parameter distance : distance à afficher
-   /// - parameter format : attributs de la chaîne de caractères
-   /// - BUG :
-   /// - TODO :
-   ///     - améliorer la simplification du texte lorsqu'il n'y pas pas suffisament de place pour s'afficher le long du segment
-   ///     - détecter quand le texte s'affiche dans un angle rentrant et interfère avec le segment suivant (ou précédent ?)
-   /// - returns : void
-
-
-   fileprivate func drawSegmentInfo(context : CGContext, at: CGPoint, rv : CGFloat, distance : CGFloat, format : [NSAttributedString.Key : Any]? = nil ) {
-
-      // On écrit les informations de cap et de distance dans un contexte
-      // graphique translaté et tourné selon l'angle de route
-
-      let s = String(format : "%03.0fT / %.1f NM", rv + 0.5, distance + 0.05)
-      let textSize = s.size(withAttributes: format)
-
-      let rotation : CGFloat
-      let offset : CGPoint
-
-      // la taille de caractère est indépendante du facteur de zoom, seul
-      // l'espacement doit être adapté au facteur de zoom
-      switch(rv) {
-      case 0...180 :
-         rotation = rv - 90
-         offset = CGPoint(x: -(textSize.width + 8/inverseZoomFactor), y: -(textSize.height + 2.5 / inverseZoomFactor))
-      default :
-         rotation = 90 + rv
-         offset = CGPoint(x:8/inverseZoomFactor, y: -(textSize.height + 2.5 / inverseZoomFactor))
-      }
-
-      // on modifie le contexte, ttranslate et rotationne, on écrit et on
-      // revient au contexte précédent
-      
-      context.saveGState()
-
-      context.translateBy(x: at.x, y: at.y)
-      context.rotate(by: rotation.deg2rad())
-
-      s.draw(at: offset, withAttributes: format)
-
-      context.restoreGState()
-
-   }
-
-
-   // -----------------------------------------------------------------------
-   /// Dessine les segments de la route dans le contexte d'affichage en
-   /// respectant la geometry de la vue
-   /// - parameter context : contexte actif dans lequel a lieu l'affichage
-   /// - parameter geometry : géométrie de la vue
-
-
-   fileprivate func drawSegments(context : CGContext, geometry : GeometryProxy) {
-
-      context.setLineWidth(5.0 / inverseZoomFactor)
-      context.setStrokeColor(UIColor.purple.cgColor)
-      context.setLineCap(.square)
-
-      let attrsRoute = [NSAttributedString.Key.font:
-                           UIFont(name: "DINCondensed-Bold",
-                                  size: 16 / inverseZoomFactor)!,
-                        NSAttributedString.Key.foregroundColor: UIColor.purple]
-
-      var previousMark : Waypoint? = nil
-      var noSequence : Int = 0
-
-      for w in navigation!.segments {
-         var p = projectOnClippedMap(waypoint: w, geometry: geometry)
-         var drawnWpt = w
-
-         // si l'utilisateur déplace un waypoint sur le segment, repositionner
-         // l'extrémité du segment
-
-         if(noSequence == findSelectedWaypoint(compute: false)) {
-
-            p.x += dragState.translation.width
-            p.y += dragState.translation.height
-
-            drawnWpt = waypointFromPoint(p, geometry)
-         }
-
-         // Si on est au premier waypoint, on positionne le stylo à l'endroit
-         // correspondant
-         if(previousMark == nil) {
-            context.move(to: p)
-         }
-         // sinon, on dessine un trait jusqu'au point
-
-         else {
-
-            // si l'utilisateur est en train d'insérer un point en étirant un
-            // segment, on affiche le sommet temporaire sous le doigt de
-            // l'utilisateur
-
-            if(selectedIndex.segment == noSequence)
-            {
-               context.addLine(to: dragState.location)
-
-               let intermediateWpt = waypointFromPoint(dragState.location, geometry)
-               let trueCourse = previousMark!.trueCourse(to: intermediateWpt)
-               let dist = previousMark!.distance(to: intermediateWpt)
-
-               drawSegmentInfo(context: context,
-                               at : dragState.location, rv: trueCourse, distance: dist,
-                               format : attrsRoute )
-
-               previousMark = intermediateWpt
-            }
-
-            context.addLine(to: p)
-
-            // et on affiche les informations de cap et de distance qu'on
-            // oriente et aligne correctement
-
-            let trueCourse = previousMark!.trueCourse(to: drawnWpt)
-            let dist = previousMark!.distance(to: drawnWpt)
-
-            drawSegmentInfo(context: context,
-                            at : p, rv: trueCourse, distance: dist,
-                            format : attrsRoute )
-         }
-         // et on passe au point suivant !
-         previousMark = drawnWpt
-         noSequence += 1
-      }
-      context.strokePath()
-   }
-
-
-   // -----------------------------------------------------------------------
-   /// Dessine les points de la route dans le contexte d'affichage en
-   /// respectant la geometry de la vue
-   /// - parameter context : contexte actif dans lequel a lieu l'affichage
-   /// - parameter geometry : géométrie de la vue
-   // -----------------------------------------------------------------------
-
-   fileprivate func drawWaypoints(context : CGContext, geometry : GeometryProxy) {
-      var noSequence : Int = 0
-
-      let WPT_BOX_WIDTH = 14 / inverseZoomFactor
-      let WPT_BOX_HEIGHT = 16 / inverseZoomFactor
-
-      let paragraphStyle = NSMutableParagraphStyle()
-      paragraphStyle.alignment = .center
-
-      let attrs = [NSAttributedString.Key.font:
-                     UIFont(name: "DINCondensed-Bold",
-                            size: 14 / inverseZoomFactor)!,
-                   NSAttributedString.Key.paragraphStyle: paragraphStyle,
-                   NSAttributedString.Key.foregroundColor: UIColor.white]
-
-
-      let selectedWaypoint = findSelectedWaypoint(compute: false)
-
-      for w in navigation!.segments {
-         var p = projectOnClippedMap(waypoint: w, geometry: geometry)
-         if(noSequence == selectedWaypoint) {
-            p.x += dragState.translation.width
-            p.y += dragState.translation.height
-         }
-
-         let r = CGRect(x: p.x - WPT_BOX_WIDTH / 2, y: p.y - WPT_BOX_HEIGHT / 2,
-                        width: WPT_BOX_WIDTH, height: WPT_BOX_HEIGHT)
-         context.setFillColor(UIColor.purple.cgColor)
-
-         if( noSequence == selectedWaypoint) {
-            context.setShadow(offset: CGSize(width: WPT_BOX_WIDTH/3, height: WPT_BOX_WIDTH/3), blur: 0.5)
-         }
-         else {
-            context.setShadow(offset: CGSize(width:0, height: 0), blur: 0, color: nil)
-         }
-
-         context.addRect(r)
-         context.fillPath()
-
-         // Affichage du numéro des waypoints
-
-         let rectText = CGRect(x: p.x - WPT_BOX_WIDTH / 2,
-                               y: p.y - WPT_BOX_HEIGHT / 2,
-                               width: WPT_BOX_WIDTH,
-                               height: WPT_BOX_HEIGHT).offsetBy(dx: 0, dy: 2/inverseZoomFactor)
-
-         waypointLabel(noSequence).draw(in: rectText, withAttributes: attrs)
-
-         noSequence += 1
-      }
-   }
-
-
-   // -----------------------------------------------------------------------
-   /// Affichage de la route
-   /// - parameter croppedImage : `UIImage` sur laquelle on affiche
-   ///                            la carte (`inout`)
-   /// - parameter geometry : paramètres géométrique de la vue qui contient
-   ///                        l'image croppedImage
-   /// - returns: Pas de valeur de retour, mais la fonction modifie le
-   ///            paramètre `croppedImage`
-   // -----------------------------------------------------------------------
-
-   fileprivate func drawRoute(_ croppedImage: inout UIImage, _ geometry: GeometryProxy) {
-      // On récupère le contexte d'affichage du fond de carte
-      //TODO: #5 gérer l'absence de contexte
-      UIGraphicsBeginImageContext(croppedImage.size)
-      let context = UIGraphicsGetCurrentContext()!
-
-      // on affiche le fond de carte
-      croppedImage.draw(at: CGPoint(x: 0, y: 0))
-
-      // Puis les différentes couches vectorielles
-
-      // la route
-      if(navigation != nil ) {
-         drawSegments(context: context, geometry: geometry)
-         drawWaypoints(context: context, geometry: geometry)
-      }
-
-      //TODO: les autres couches vectorielles
-
-      croppedImage = UIGraphicsGetImageFromCurrentImageContext()!
-      UIGraphicsEndImageContext()
-   }
 
 
 
@@ -572,23 +265,32 @@ struct ScannedMapView: View {
    }
 
 
-   //-----------------------------------------------------------------------
-   //
-   //-----------------------------------------------------------------------
 
-   fileprivate func saveZoomLevel() {
-      self.currentZoomFactor *= self.currentAmount
-      self.currentAmount = 1
+   /// Met à jour le niveau de zoom
+   ///
+   /// L'évolution est multiplicative, c'est à dire que le zoom est
+   /// mutiplié par `currentAmount`
+
+   fileprivate func updateZoomLevel() {
+      currentZoomFactor *= currentAmount
+      currentAmount = 1
       inverseZoomFactor = 1/currentZoomFactor
    }
 
-   //-----------------------------------------------------------------------
-   //
-   //-----------------------------------------------------------------------
+   /// Vérifie si deux points à l'écran peuvent être considérés voisins
+   ///
+   /// - parameter p : coordonnées écran du premier point
+   /// - parameter q : coordonnées écran du second point
+   ///
+   /// - returns `true` si les deux points sont proches, '`false` sinon
+   ///
+   /// On regarde si le carré de la distance entre les points est inférieur
+   /// au seuil défini
 
-   func areCloseEnough(_ p : CGPoint, _ q : CGPoint) -> Bool {
-
-      return (p.x - q.x) * (p.x - q.x)  + (p.y - q.y) * (p.y - q.y) < 200
+   func areNeighbours(_ p : CGPoint, _ q : CGPoint) -> Bool {
+      /// carré de la distance de la boule
+      let VICINITY : CGFloat = 200
+      return (p.x - q.x) * (p.x - q.x)  + (p.y - q.y) * (p.y - q.y) < VICINITY
    }
 
 
@@ -597,48 +299,56 @@ struct ScannedMapView: View {
     Détermine le waypoint qui est est en cours de sélection pendant les gestures
 
     - parameter compute : indicateur qui va déterminer si l'index doit être
-                          calculé (`true`) ou simplement lu (`false`)
+    calculé (`true`) ou simplement lu (`false`)
     - parameter location : `CGPoint` position du tap de l'utilisateur
     - parameter geometry : géométrie de la fenêtre
 
-    - returns : l'index du waypoint sélectionné dans la route. Si le point choisi ne correspond pas à un waypoint à l'écran, retourne `nil`
+    - returns : l'index du waypoint sélectionné dans la route. Si le point choisi
+    ne correspond pas à un waypoint à l'écran, retourne `nil`
 
     S'il y a besoin de rafraîchir la sélection, on calcule l'index en
     parcourant la liste des waypoints pour regarder si l'un d'entre eux
     se trouve à proximité du point indiqué par l'utilisateur
 
-    - Important : l'index n'est pas mis à jour par la fonction. Il doit être mis à jour spécifiquement, par exemple :
+    - Important : l'index n'est pas mis à jour par la fonction. Il doit être mis
+    à jour spécifiquement, par exemple :
 
-         ````
-         `selectedIndex.segment = findSelectedSegment(update: true,
-                                          drag!.startLocation, geometry)
-         ````
+    ````
+    `selectedIndex.waypoint = findSelectedWaypoint(update: true,
+    drag!.startLocation, geometry)
+    ````
     */
 
    func findSelectedWaypoint(compute : Bool, _ location : CGPoint? = nil, _ geometry : GeometryProxy? = nil) -> Int? {
 
-      if(navigation == nil) {return nil}
+      guard let _ = navigation else { return nil}
+
+      // si on doit déterminer l'index, on lance le calcul, et on retourne
+      // la valeur trouvée sans modifier `selectedIndex.waypoint`
 
       if(compute == true)
       {
-         var value : Int? = nil
-         var noSeq = 0
+         guard let _ = location else { return nil }
 
-         if(location == nil) { return  nil}
+         var value : Int?
+         var noSeq = 0
 
          for w : Waypoint in navigation!.segments
          {
+            // on récupère les coordonnées à l'écran du waypoint
             let p = projectOnClippedMap(waypoint: w, geometry: geometry!)
-            if( areCloseEnough( location!, p )) {
-                value = noSeq
+            if( areNeighbours( location!, p )) {
+               value = noSeq
                break
             }
             noSeq += 1
          }
          return value
       }
-      // on retourne l'index
-      return selectedIndex.waypoint
+      // on veut juste la dernière valeur de l'index qu'on retourne
+      else {
+         return selectedIndex.waypoint
+      }
    }
 
    //-----------------------------------------------------------------------
@@ -655,8 +365,6 @@ struct ScannedMapView: View {
          var value : Int?
          var noSeq = 0
          var prevWpt : CGPoint?
-
-         //if(location == nil) { return nil }
 
          for w : Waypoint in navigation!.segments
          {
@@ -744,6 +452,54 @@ struct ScannedMapView: View {
       centreImage = self.projectOnMap(currentCenter.latitude, currentCenter.longitude)
    }
 
+   fileprivate func startDragging(_ drag: DragGesture.Value?, _ state: inout ScannedMapView.DragState, _ geometry : GeometryProxy) {
+      if( drag != nil  &&
+            selectedIndex.waypoint == nil &&
+            selectedIndex.segment == nil)
+      {
+         selectedIndex.waypoint = findSelectedWaypoint(compute: true, drag!.startLocation, geometry)
+         if( selectedIndex.waypoint == nil)
+         {
+            selectedIndex.segment = findSelectedSegment(compute: true, drag!.startLocation, geometry)
+         }
+
+         if(selectedIndex.segment != nil || selectedIndex.waypoint != nil) {
+            generator.selectionChanged()
+         }
+      }
+      state = .dragging(translation: drag?.translation ?? .zero, location: drag?.location ?? .zero)
+   }
+
+   fileprivate func endDragging(_ state: inout ScannedMapView.DragState) {
+      state = .inactive
+      selectedIndex.waypoint = nil
+      selectedIndex.segment = nil
+   }
+
+
+
+   fileprivate func actionsOnDragEnd(_ drag: DragGesture.Value, _ geometry : GeometryProxy) {
+      // Mettre à jour la position du point déplacé
+
+      if(selectedIndex.waypoint != nil)
+      {
+         modifySelectedWaypoint(drag.translation)
+         selectedIndex.waypoint = nil
+      }
+
+      // Mise à jour du waypoint inséré
+
+      if(selectedIndex.segment != nil)
+      {
+         insertWaypoint(drag.location, geometry)
+         selectedIndex.segment = nil
+      }
+      //      if(selectedIndex.waypoint == nil && selectedIndex.segment == nil)
+      //      {
+      //
+      //      }
+   }
+
    //-----------------------------------------------------------------------
    /// Affiche la vue de la carte et des autres couches vectorielles, en particulier celle affichant la route
    /// - Bug :
@@ -753,74 +509,37 @@ struct ScannedMapView: View {
    /// - TODO: #6 Implémenter le Undo/redo pour les gestures
    /// - TODO: #7 Nettoyer le code des gestures
    /// - TODO: #8 Implémenter le multiscan
-   /// - TODO: #9 implémenter le positionnement aimanté des points sur alignements ou des poinnts d'entrée de chenaux par exemple
+   /// - TODO: #9 implémenter le positionnement aimanté des points sur alignements ou des points d'entrée de chenaux par exemple
 
    var body:  some View {
       GeometryReader { geometry in
+
+         let minimumLongPressDuration = 0.5
+         let longPressDrag = LongPressGesture(minimumDuration: minimumLongPressDuration)
+            .sequenced(before: DragGesture())
+            .updating($dragState) { value, state, transaction in
+               switch value {
+               // Long press begins.
+               case .first(true):
+                  state = .pressing
+               // Long press confirmed, dragging may begin.
+               case .second(true, let drag):
+                  startDragging(drag, &state, geometry)
+               // Dragging ended or the long press cancelled.
+               default:
+                  endDragging(&state)
+               }
+            }
+            .onEnded { value in
+               guard case .second(true, let drag?) = value else { return }
+               actionsOnDragEnd(drag, geometry)
+            }
+
          VStack {
-            //TODO: faire un peu de ménage dans les gesture qui alourdissent le code
-            let minimumLongPressDuration = 0.5
-            let longPressDrag = LongPressGesture(minimumDuration: minimumLongPressDuration)
-               .sequenced(before: DragGesture())//minimumDistance: 0, coordinateSpace: .local))
-               .updating($dragState) { value, state, transaction in
-                  switch value {
-                  // Long press begins.
-                  case .first(true):
-                     state = .pressing
-
-                  // Long press confirmed, dragging may begin.
-                  case .second(true, let drag):
-
-                     if( drag != nil  &&
-                           selectedIndex.waypoint == nil &&
-                           selectedIndex.segment == nil)
-                     {
-                        selectedIndex.waypoint = findSelectedWaypoint(compute: true, drag!.startLocation, geometry)
-                        if( selectedIndex.waypoint == nil)
-                        {
-                           selectedIndex.segment = findSelectedSegment(compute: true, drag!.startLocation, geometry)
-                        }
-                        
-                        if(selectedIndex.segment != nil || selectedIndex.waypoint != nil) {
-                           generator.selectionChanged()
-                        }
-                     }
-                     state = .dragging(translation: drag?.translation ?? .zero, location: drag?.location ?? .zero)
-
-                  // Dragging ended or the long press cancelled.
-                  default:
-                     state = .inactive
-                     selectedIndex.waypoint = nil
-                     selectedIndex.segment = nil
-                  }
-               }
-
-               .onEnded { value in
-                  guard case .second(true, let drag?) = value else { return }
-
-                  // Mettre à jour la position du point déplacé
-
-                  if(selectedIndex.waypoint != nil)
-                  {
-                     modifySelectedWaypoint(drag.translation)
-                     selectedIndex.waypoint = nil
-                  }
-
-                  // Mise à jour du waypoint inséré
-
-                  if(selectedIndex.segment != nil)
-                  {
-                     insertWaypoint(drag.location, geometry)
-                     selectedIndex.segment = nil
-                  }
-               }
-
             drawCroppedMap(geometry: geometry)
                .onAppear(perform: appear)
                .clipped()
-               .onTapGesture(count: 2, perform: {
-                  toggleZoom()
-               })
+               .onTapGesture(count: 2, perform: { toggleZoom() })
                .gesture(longPressDrag)
                .onLongPressGesture(minimumDuration: 1, maximumDistance: 10, perform: {
                   //TODO: #10 afficher le menu contextuel
@@ -831,22 +550,14 @@ struct ScannedMapView: View {
 
                // Déplacement de la carte
                .gesture(DragGesture()
-                           .onChanged({ value in
-                              setDeplacement(value, size:geometry.size)
-                           })
-                           .onEnded({_ in
-                              saveOffset()   // on met à jour le déplacement global à la fin du DragGesture
-                           })
+                           .onChanged({ value in setDeplacement(value, size:geometry.size) })
+                           .onEnded({_ in saveOffset() })  // on met à jour le déplacement global à la fin du DragGesture
                )
                // zoom de la carte
                .gesture(
                   MagnificationGesture()
-                     .onChanged { amount in
-                        setZoomLevel(amount)
-                     }
-                     .onEnded ({ _ in
-                        saveZoomLevel()
-                     })
+                     .onChanged { amount in setZoomLevel(amount)}
+                     .onEnded ({ _ in updateZoomLevel() })
                )
          }
       }
@@ -958,7 +669,8 @@ struct ScannedMapView_Previews: PreviewProvider {
       //                     mapCenter: CLLocationCoordinate2D(latitude: 47.5, longitude: -4.5),
       //                     1166.4339, 6978.24377, -66037.97, 64990.7486)
 
-      ScannedMapView(mapCenter: CLLocationCoordinate2D(latitude: 47.5, longitude: -4.5))
+      ScannedMapView(mapCenter: CLLocationCoordinate2D(latitude: 47.5,
+                                                       longitude: -4.5))
          .previewDevice("iPhone 11 Pro")
    }
 }

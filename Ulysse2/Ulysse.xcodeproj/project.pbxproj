@@ -13,6 +13,9 @@
 		07AF33D8269327EB00BE5AD4 /* AvurnavListOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AF33D7269327EB00BE5AD4 /* AvurnavListOptions.swift */; };
 		07AF33DD2693282C00BE5AD4 /* NumbersExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AF33DC2693282C00BE5AD4 /* NumbersExtension.swift */; };
 		07B84675266F4E5A00CD6C67 /* ScannedMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B84674266F4E5A00CD6C67 /* ScannedMapView.swift */; };
+		07C2DEE3269DB866001C8404 /* Waypoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C2DEE2269DB866001C8404 /* Waypoint.swift */; };
+		07C2DEE8269DBAFF001C8404 /* InformationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C2DEE7269DBAFF001C8404 /* InformationDataSource.swift */; };
+		07C2DEED269DBB9E001C8404 /* InfonavParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C2DEEC269DBB9E001C8404 /* InfonavParser.swift */; };
 		07C44607263FD4E100D44FE7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C44606263FD4E100D44FE7 /* AppDelegate.swift */; };
 		07C44609263FD4E100D44FE7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C44608263FD4E100D44FE7 /* SceneDelegate.swift */; };
 		07C4460B263FD4E100D44FE7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C4460A263FD4E100D44FE7 /* ContentView.swift */; };
@@ -58,6 +61,9 @@
 		07AF33DC2693282C00BE5AD4 /* NumbersExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumbersExtension.swift; sourceTree = SOURCE_ROOT; };
 		07AF33E4269328FC00BE5AD4 /* Ulysse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ulysse.entitlements; sourceTree = "<group>"; };
 		07B84674266F4E5A00CD6C67 /* ScannedMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedMapView.swift; sourceTree = "<group>"; };
+		07C2DEE2269DB866001C8404 /* Waypoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Waypoint.swift; sourceTree = "<group>"; };
+		07C2DEE7269DBAFF001C8404 /* InformationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationDataSource.swift; sourceTree = "<group>"; };
+		07C2DEEC269DBB9E001C8404 /* InfonavParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfonavParser.swift; sourceTree = "<group>"; };
 		07C44603263FD4E100D44FE7 /* Ulysse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ulysse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07C44606263FD4E100D44FE7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		07C44608263FD4E100D44FE7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -110,6 +116,42 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		07C2DEF1269DC183001C8404 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				07AF33CB2693279A00BE5AD4 /* Route.swift */,
+				07C2DEE2269DB866001C8404 /* Waypoint.swift */,
+			);
+			path = Navigation;
+			sourceTree = "<group>";
+		};
+		07C2DEF5269DC1A0001C8404 /* Information nautique */ = {
+			isa = PBXGroup;
+			children = (
+				07C2DEE7269DBAFF001C8404 /* InformationDataSource.swift */,
+				07C4464D264150F700D44FE7 /* InfoNavItem.swift */,
+				07C2DEEC269DBB9E001C8404 /* InfonavParser.swift */,
+			);
+			path = "Information nautique";
+			sourceTree = "<group>";
+		};
+		07C2DEF9269DC1BC001C8404 /* Météo */ = {
+			isa = PBXGroup;
+			children = (
+				07AF33CC2693279A00BE5AD4 /* WeatherData.swift */,
+			);
+			name = "Météo";
+			path = "Météo";
+			sourceTree = "<group>";
+		};
+		07C2DF00269DC202001C8404 /* Cartographie */ = {
+			isa = PBXGroup;
+			children = (
+				07B84674266F4E5A00CD6C67 /* ScannedMapView.swift */,
+			);
+			path = Cartographie;
+			sourceTree = "<group>";
+		};
 		07C445FA263FD4E100D44FE7 = {
 			isa = PBXGroup;
 			children = (
@@ -178,10 +220,11 @@
 		07C446692641843A00D44FE7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				07AF33D2269327C700BE5AD4 /* TideView.swift */,
 				07C4460A263FD4E100D44FE7 /* ContentView.swift */,
+				07AF33D2269327C700BE5AD4 /* TideView.swift */,
+				07C2DF00269DC202001C8404 /* Cartographie */,
 				07C446C02642C43D00D44FE7 /* Helpers */,
-				07C446BF2642C41300D44FE7 /* Avurnav */,
+				07C446BF2642C41300D44FE7 /* Informations nautiques */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -189,10 +232,10 @@
 		07C4466A2641845800D44FE7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				07AF33CB2693279A00BE5AD4 /* Route.swift */,
-				07AF33CC2693279A00BE5AD4 /* WeatherData.swift */,
 				07C44664264183C700D44FE7 /* ModelData.swift */,
-				07C4464D264150F700D44FE7 /* InfoNavItem.swift */,
+				07C2DEF5269DC1A0001C8404 /* Information nautique */,
+				07C2DEF1269DC183001C8404 /* Navigation */,
+				07C2DEF9269DC1BC001C8404 /* Météo */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -204,7 +247,7 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		07C446BF2642C41300D44FE7 /* Avurnav */ = {
+		07C446BF2642C41300D44FE7 /* Informations nautiques */ = {
 			isa = PBXGroup;
 			children = (
 				07AF33D7269327EB00BE5AD4 /* AvurnavListOptions.swift */,
@@ -212,14 +255,13 @@
 				07C4466C264184E900D44FE7 /* AvurnavRow.swift */,
 				07C44691264194F600D44FE7 /* AvurnavDetail.swift */,
 			);
-			path = Avurnav;
+			path = "Informations nautiques";
 			sourceTree = "<group>";
 		};
 		07C446C02642C43D00D44FE7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
 				07C44643263FE0D000D44FE7 /* MapView.swift */,
-				07B84674266F4E5A00CD6C67 /* ScannedMapView.swift */,
 				07C446C42642CE4700D44FE7 /* ToggleButton.swift */,
 				07C4463E263FDF6400D44FE7 /* CircleImage.swift */,
 				07C446BA2642C30700D44FE7 /* PinButton.swift */,
@@ -367,6 +409,7 @@
 				07C446C52642CE4700D44FE7 /* ToggleButton.swift in Sources */,
 				07C44609263FD4E100D44FE7 /* SceneDelegate.swift in Sources */,
 				07AF33CD2693279A00BE5AD4 /* Route.swift in Sources */,
+				07C2DEE3269DB866001C8404 /* Waypoint.swift in Sources */,
 				07C44692264194F600D44FE7 /* AvurnavDetail.swift in Sources */,
 				07C4460B263FD4E100D44FE7 /* ContentView.swift in Sources */,
 				07C4464E264150F700D44FE7 /* InfoNavItem.swift in Sources */,
@@ -374,9 +417,11 @@
 				07C446BB2642C30700D44FE7 /* PinButton.swift in Sources */,
 				07B84675266F4E5A00CD6C67 /* ScannedMapView.swift in Sources */,
 				07C4466D264184E900D44FE7 /* AvurnavRow.swift in Sources */,
+				07C2DEED269DBB9E001C8404 /* InfonavParser.swift in Sources */,
 				07AF33D8269327EB00BE5AD4 /* AvurnavListOptions.swift in Sources */,
 				07C4467526418A9500D44FE7 /* AvurnavList.swift in Sources */,
 				07C44665264183C700D44FE7 /* ModelData.swift in Sources */,
+				07C2DEE8269DBAFF001C8404 /* InformationDataSource.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
