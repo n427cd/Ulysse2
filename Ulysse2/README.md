@@ -7,7 +7,7 @@ Application iOS pour la préparation et le suivi de navigations nautiques, propo
 ### Sprint 1 :
 #### Avis aux navigateurs
 - récupération des avis aux navigateurs des différentes régions, de manière asynchrone #19
-- sauvegarde des avis lus et téléchargés
+- sauvegarde des avis lus et téléchargés https://github.com/n427cd/Ulysse2/issues/20#issue-946548150
 #### Cartographie
 - affichage d'une carte, différents niveaux de zooms, système de tuiles éventuellement adapté
 - affichage de la route, et du log de nav avec fonctions essentielles : validation du passage d'un waypoint, marquage de la position actuelle
