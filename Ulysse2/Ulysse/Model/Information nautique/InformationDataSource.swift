@@ -12,6 +12,7 @@ import Foundation
 /// `.atlantique` : Premar atlantique
 /// `.manche` : Premar Manche et Mer du nord
 /// `.mediterranee` = Premar Méditerranée
+
 enum Premar : Int, CaseIterable, Codable {
    case atlantique
    case manche
@@ -24,6 +25,7 @@ enum Premar : Int, CaseIterable, Codable {
 /// `.urgent` : avurnavs
 /// `.normal` : avinavs
 /// `.rade` : avirade
+
 enum typeInformation : Int, CaseIterable, Codable {
    case urgent
    case normal
@@ -35,6 +37,7 @@ enum typeInformation : Int, CaseIterable, Codable {
 ///
 /// `.invalidURL`: l'URL de téléchargement n'est pas correcte
 /// `.invalidSyntax` : le décodage du flux a échoué
+
 enum downloadError : Error
 {
    case invalidURL
@@ -69,25 +72,6 @@ class InformationDataSource : Codable {
       return "https://www.premar-\(urlRegionName).gouv.fr/avis/rss/\(infoName)?format=rss"
    }
 
-   /// URL de la sauvegarde locale de la source de données
-   func localURL() -> String {
-
-      var urlRegionName : String
-      switch self.region {
-      case .atlantique :  urlRegionName = "A"
-      case .manche :  urlRegionName = "B"
-      case .mediterranee : urlRegionName = "C"
-      }
-
-      var infoName : String
-      switch self.nature {
-      case .urgent : infoName = "U"
-      case .normal : infoName = "N"
-      case .rade : infoName = "R"
-      }
-
-      return "infonav\(urlRegionName)\(infoName).data"
-   }
 
 
    /// Date de publication par le propriétaire des données
@@ -112,6 +96,66 @@ class InformationDataSource : Codable {
       items = []
    }
 
+   /// URL de la sauvegarde locale de la source de données
+
+   func localURL() -> String {
+
+      var urlRegionName : String
+      switch self.region {
+      case .atlantique :  urlRegionName = "A"
+      case .manche :  urlRegionName = "B"
+      case .mediterranee : urlRegionName = "C"
+      }
+
+      var infoName : String
+      switch self.nature {
+      case .urgent : infoName = "U"
+      case .normal : infoName = "N"
+      case .rade : infoName = "R"
+      }
+
+      return "infonav\(urlRegionName)\(infoName).data"
+   }
+
+
+   fileprivate func backupIsOld(_ webFeed: InformationDataSource, _ now: Date) -> Bool {
+      // Parfois la date de publication du flux
+      // n'est pas mise à jour par la premar. On regarde
+      // donc si la date du flux n'est pas trop vieille
+      // (86400 = 1 journée)
+      return webFeed.publishedOn != nil  &&
+         ((publishedOn! < webFeed.publishedOn!) ||
+            publishedOn!.addingTimeInterval(INTERVAL_24HOURS) < now)
+   }
+
+   fileprivate func updateBackup(timestamp now: Date) {
+      saveOnDisk()
+      lastModifiedOn = now
+   }
+
+   fileprivate func updateHeader(from webFeed: InformationDataSource) {
+      // La version sauvegardée est plus ancienne,
+      // On la remplace par le flux qui vient d'être
+      // téléchargé
+
+      publishedOn = webFeed.publishedOn
+      sourceDescription = webFeed.sourceDescription
+   }
+
+
+   fileprivate func updateItemsFromWebFeed(_ webFeed : InformationDataSource) -> (Bool, [InfoNavItem]){
+
+      let flux = Set<InfoNavItem>(webFeed.items)
+
+      let newItems = flux.subtracting(self.items)
+      let oldItems = flux.intersection(self.items)
+      let previousCount = items.count
+
+      for item in oldItems { item.setNew(false) }
+
+      return ((newItems.count > 0 || oldItems.count !=  previousCount),
+              Array(newItems) + Array(oldItems))
+   }
 
 
    /// Téléchargement du flux RSS
@@ -132,68 +176,50 @@ class InformationDataSource : Codable {
 
    func downloadFeed()
    {
-      let now = Date()
+      /// tri des `InfoNavItem` par date de publication, puis par identifiant
+      let navItemsSort : (_ a : InfoNavItem, _ b : InfoNavItem)->Bool = {
+         ($0.pubDate > $1.pubDate) ||
+            ($0.pubDate == $1.pubDate && $0.id > $1.id) }
 
       // On tente de récupérer la sauvegarde si elle existe.
       // Si on vient de lancer l'application, on remplace self.items qui est
       // vide ou nil par les informations sauvegardées.
-      // Si l'application était déjç chargée, on remplace les oinformations par
+      // Si l'application était déjà chargée, on remplace les informations par
       // elles-mêmes, ce qui en terme d'efficacité n'est pas forcément bon, mais...
 
       //TODO: voir si on peut éviter le manque d'efficacité
 
-      var hasBackup = false
+      var backupExists = false
 
       if let savedFeed = loadFromDisk()
       {
-         publishedOn = savedFeed.publishedOn
-         items = savedFeed.items.sorted(by: {                                                                     ($0.pubDate > $1.pubDate) || ($0.pubDate == $1.pubDate && $0.id > $1.id) })
-         hasBackup = true
+         backupExists = true
+         updateHeader(from:savedFeed)
+         items = savedFeed.items.sorted(by:navItemsSort)
       }
 
       // on télécharge les informations à partir du flux RSS
 
       do {
-         let webFeed = try downloadAndDecodeRssFeed(sourceURL())
+         let now = Date()
 
+         let webFeed = try downloadAndDecodeRssFeed(sourceURL())
          lastCheckedServer = now
 
-         ///TODO #1 : vérifier la date de publication du feed et simplement
-         ///       mettre à jour `lastCheckedServer` si le feed n'a pas été maj
-
-         if(hasBackup)
+         if(backupExists)
          {
-            if(webFeed.publishedOn != nil  &&
-                  ((publishedOn! < webFeed.publishedOn!) ||
-                     publishedOn!.addingTimeInterval(INTERVAL_24HOURS) < now))
+            if(backupIsOld(webFeed, now))
             {
-               // La version sauvegardée est plus ancienne,
-               // On la remplace par le flux qui vient d'être
-               // téléchargé
-               // Parfois la date de publication du flux
-               // n'est pas mise à jour par la premar. On regarde
-               // donc si la date du flux n'est pas trop vieille
-               // (86400 = 1 journée)
+               let shouldUpdateBackup : Bool
 
-               publishedOn = webFeed.publishedOn
-               sourceDescription = webFeed.sourceDescription
+               (shouldUpdateBackup,items) = updateItemsFromWebFeed(webFeed)
+               items.sort(by: navItemsSort)
 
-               let flux = Set<InfoNavItem>(webFeed.items)
-
-               let newItems = flux.subtracting(self.items)
-               let oldItems = flux.intersection(self.items)
-               let previousCount = items.count
-
-               for item in oldItems { item.setNew(false) }
-               let bufArray = Array(newItems) + Array(oldItems)
-               items = bufArray.sorted(by:{
-                                          ($0.pubDate > $1.pubDate) ||
-                                             ($0.pubDate == $1.pubDate && $0.id > $1.id) })
+               updateHeader(from:webFeed)
 
                // on sauvegarde si la liste des messages a évolué
-               if (newItems.count > 0 || oldItems.count !=  previousCount) {
-                  saveOnDisk()
-                  lastModifiedOn = now
+               if (shouldUpdateBackup) {
+                  updateBackup(timestamp: now)
                }
             }
 
@@ -203,22 +229,27 @@ class InformationDataSource : Codable {
          else {
             // Si on n'a pas de sauvegarde, on récupère ce qui provient du flux
             // sauf si on n'a pas de flux...
-            //if( tempFeed != nil) {
-            publishedOn = webFeed.publishedOn
-            sourceDescription = webFeed.sourceDescription
-            items = webFeed.items.sorted(by: {
-                                          ($0.pubDate > $1.pubDate) ||
-                                             ($0.pubDate == $1.pubDate && $0.id > $1.id) })
-            saveOnDisk()
-            lastModifiedOn = now
-            //}
+
+            items = webFeed.items.sorted(by: navItemsSort)
+
+            updateHeader(from: webFeed)
+            updateBackup(timestamp: now)
          }
       }
       catch downloadError.invalidURL {}
       catch downloadError.invalidSyntax {}
       catch {}
 
-      //for i in items { print("\(i.title)")}
+   }
+
+   /// récupère l'URL du fichier de sauvegarde du flux
+   /// - returns : un couple avec le `FileManager` et l'URL
+
+   fileprivate func getFile() -> (FileManager, URL)
+   {
+      let fileManager = FileManager.default
+      let docsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+      return (fileManager, docsDir[0].appendingPathComponent(localURL()))
    }
 
 
@@ -233,17 +264,14 @@ class InformationDataSource : Codable {
    ///             n'existe pas
 
    func loadFromDisk() -> InformationDataSource? {
-      let fileManager = FileManager.default
-      let docsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-      let fileName = docsDir[0].appendingPathComponent(localURL())
-
-      let decoder = JSONDecoder()
+      let (fileManager, fileName) = getFile()
 
       if(fileManager.fileExists(atPath: fileName.path))
       {
          do
          {
             let data = try Data(contentsOf: fileName)
+            let decoder = JSONDecoder()
             return try decoder.decode(InformationDataSource.self, from: data)
          }
          catch
@@ -266,15 +294,15 @@ class InformationDataSource : Codable {
    /// région et la nature des infos.
 
    func saveOnDisk() {
-      let fileManager = FileManager.default
-      let localDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-      let fileName = localDir[0].appendingPathComponent(localURL())
+      let (fileManager, fileName) = getFile()
 
-      let encoder = JSONEncoder()
-      encoder.outputFormatting = .sortedKeys
       do
       {
+         let encoder = JSONEncoder()
+         encoder.outputFormatting = .sortedKeys
+
          let data = try encoder.encode(self)
+
          fileManager.createFile(atPath: fileName.path, contents: data, attributes: nil)
       }
       catch
