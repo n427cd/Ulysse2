@@ -5,9 +5,7 @@
 //  Created by Eric Duchenne on 04/05/2021.
 //
 
-import Foundation
-import SwiftUI
-import CoreLocation
+import CoreLocation.CLLocation
 
 /// Contient le détail des informations nautiques émises par la Premar
 
@@ -65,9 +63,6 @@ class InfoNavItem : Equatable, Hashable, Codable, Identifiable {
 
    /// 
    private var imageName: String = ""
-   var image: Image {
-      Image(imageName)
-   }
 
    //TODO: #2 implementer un getter et setter de isNew
    func setNew(_ flag : Bool) { isNewItem = flag }
