@@ -187,7 +187,7 @@ class InformationDataSource : Codable {
       // Si l'application était déjà chargée, on remplace les informations par
       // elles-mêmes, ce qui en terme d'efficacité n'est pas forcément bon, mais...
 
-      //TODO: voir si on peut éviter le manque d'efficacité
+      //TODO: #4 voir si on peut éviter le manque d'efficacité
 
       var backupExists = false
 

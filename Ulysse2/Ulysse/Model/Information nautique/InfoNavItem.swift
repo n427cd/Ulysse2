@@ -22,6 +22,7 @@ class InfoNavItem : Equatable, Hashable, Codable, Identifiable {
    /// -Todo: Il faudra sans doute inclure également la région dans l'ID,
    ///        car deux Prémar peuvent utiliser le même numéro
 
+//TODO: #1 ajouter la région dans l'identifiant
    static func == (lhs: InfoNavItem, rhs: InfoNavItem) -> Bool {
       return lhs.id == rhs.id && lhs.pubDate == rhs.pubDate
    }
@@ -68,7 +69,7 @@ class InfoNavItem : Equatable, Hashable, Codable, Identifiable {
       Image(imageName)
    }
 
-   //TODO: implementer un getter et setter de isNew
+   //TODO: #2 implementer un getter et setter de isNew
    func setNew(_ flag : Bool) { isNewItem = flag }
 }
 

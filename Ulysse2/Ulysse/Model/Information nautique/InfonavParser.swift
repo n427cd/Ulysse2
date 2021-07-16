@@ -228,7 +228,7 @@ extension InfoNavParser: XMLParserDelegate {
 
       // `<\title> : on ne s'intéresse qu'aux titre des items.
       // On le nettoie, et on extrait l'` id`du titre
-      // TODO : ajouter la région à l'`id`
+      // TODO #3 : ajouter la région à l'`id`
 
       // ???  Est-ce utile si on extrait l'id dans la balise <id> ???????
       //

@@ -13,8 +13,9 @@ import CoreLocation
 
 
 /// Vue permettant la manipulation de cartes scannées
-/// - TODO: #2  Implémentation du multizoom
-/// - TODO: #3 implémentation de la suppression d'un Waypoint
+
+// - TODO: #7 Implémentation du multizoom
+// - TODO: #8 implémentation de la suppression d'un Waypoint
 
 
 struct ScannedMapView: View {
@@ -63,7 +64,7 @@ struct ScannedMapView: View {
 
    init(assetName : String, mapCenter: CLLocationCoordinate2D, _ alphaX : Double, _ betaX : Double, _ alphaY : Double, _ betaY : Double, route : Route? = nil, showRoute : Bool = false, ci : CGPoint = CGPoint())
    {
-      //TODO #4 : gérer les erreurs au chargement des cartes
+      //TODO #9 : gérer les erreurs au chargement des cartes
 
       fileName = assetName
       let image = UIImage(named: assetName)
@@ -421,7 +422,7 @@ struct ScannedMapView: View {
          let newPosition = inverseProj(p)
          w.coord = newPosition
 
-         //TODO : recalculer le rectangle de la route (centrage de la carte)
+         //TODO #10 : recalculer le rectangle de la route (centrage de la carte)
       }
    }
 
@@ -506,10 +507,10 @@ struct ScannedMapView: View {
    ///   - ne parvient pas à faire ofnctionner le feedback haptique quand l'utilisateur sélectionne un point ou un segment
    ///   - l'annulation des déplacements ne fonctionne pas vraiment (soit le point reste là où l'annulation a eu lieu, soit la sélection persiste après l'annulation
    /// 
-   /// - TODO: #6 Implémenter le Undo/redo pour les gestures
-   /// - TODO: #7 Nettoyer le code des gestures
-   /// - TODO: #8 Implémenter le multiscan
-   /// - TODO: #9 implémenter le positionnement aimanté des points sur alignements ou des points d'entrée de chenaux par exemple
+   // - TODO: #11 Implémenter le Undo/redo pour les gestures
+   // - TODO: #12 Nettoyer le code des gestures
+   // - TODO: #13 Implémenter le multizoom
+   // - TODO: #14 implémenter le positionnement aimanté des points sur alignements ou des points d'entrée de chenaux par exemple
 
    var body:  some View {
       GeometryReader { geometry in

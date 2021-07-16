@@ -44,6 +44,8 @@ extension ScannedMapView {
    ///     - détecter quand le texte s'affiche dans un angle rentrant et interfère avec le segment suivant (ou précédent ?)
    /// - returns : void
 
+//TODO #5 : améliorer la simplification du texte du segment par manque de place
+//TODO #6 : détecter l'interférence du texte avec le segment
 
    fileprivate func drawSegmentInfo(context : CGContext, at: CGPoint, rv : CGFloat, distance : CGFloat, format : [NSAttributedString.Key : Any]? = nil ) {
 
