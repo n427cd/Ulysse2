@@ -10,7 +10,7 @@ import CoreLocation
 import Combine
 
 
-let SCHEMA_UPGDRADE = true
+let SCHEMA_UPGRADE = true
 
 /// Modèle des données de l'application
 ///
@@ -24,10 +24,10 @@ final class ModelData : ObservableObject {
    func cleanDirectoryForSchemaUpgrade() {
       if SCHEMA_UPGRADE == false { return }
 
-      for region in Premar.allCases
-         for type in typeInformation.allCases
+      for region in Premar.allCases {
+         for type in typeInformation.allCases {
             do {
-               try fileManager.remove(at: sourceInfo[region][type].localUrl())
+               try FileManager.default.removeItem(atPath:  infoData[region.rawValue][type.rawValue].localURL())
             } catch {}
          }
       }
