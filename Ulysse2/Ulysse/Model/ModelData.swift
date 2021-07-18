@@ -10,7 +10,7 @@ import CoreLocation
 import Combine
 
 
-
+let SCHEMA_UPGDRADE = true
 
 /// Modèle des données de l'application
 ///
@@ -19,7 +19,24 @@ final class ModelData : ObservableObject {
    @Published var infoData : [[InformationDataSource]] = []
    @Published var navs : [Route] = LoadRouteLibrary()
 
+
+
+   func cleanDirectoryForSchemaUpgrade() {
+      if SCHEMA_UPGRADE == false { return }
+
+      for region in Premar.allCases
+         for type in typeInformation.allCases
+            do {
+               try fileManager.remove(at: sourceInfo[region][type].localUrl())
+            } catch {}
+         }
+      }
+   }
+
+
    init() {
+
+      cleanDirectoryForSchemaUpgrade()
 
       // Les sauvegardes sont lues lors de l'initialisation. La mise à jour
     // du flux RSS a lieu lors de l'ouverture de la vue `AvurnavList`
