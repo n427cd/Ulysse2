@@ -13,14 +13,14 @@ import MapKit
 
 struct AvurnavDetail: View {
    @EnvironmentObject var modelData : ModelData
-   var avurnav : InfoNavItem
+   @StateObject var avurnav : InfoNavItem
    var region : Premar
    var info : typeInformation
    var isFirstAppear = true
    var avurnavIndex : Int {
       modelData.infoData[region.rawValue][info.rawValue].items.firstIndex(where : {$0.id == avurnav.id }) ?? 0
    }
-
+   
    func qualificatif(_ type : typeInformation)->String
    {
       switch type
@@ -30,28 +30,28 @@ struct AvurnavDetail: View {
       case .rade :   return "rade"
       }
    }
-
+   
    var avurnavNumber : String {
       return modelData.Region + " — Avis \(qualificatif(info)) n° " + avurnav.id
    }
-
+   
    static let pubDateFormat : DateFormatter = {
       let formatter = DateFormatter()
       formatter.dateStyle = .short
       return formatter
    }()
-
+   
    static let RelFormatter : RelativeDateTimeFormatter = {
       let formatter = RelativeDateTimeFormatter()
       formatter.locale = NSLocale.current
       formatter.unitsStyle = .full
-
+      
       return formatter
    }()
-
-
+   
+   
    var body: some View {
-
+      
       ScannedMapView(mapCenter: avurnav.locationCoordinate)
          .frame(height:300)
       ScrollView {
@@ -70,15 +70,15 @@ struct AvurnavDetail: View {
             }
             .font(.subheadline)
             .foregroundColor(.secondary)
-
+            
             Divider()
-
+            
             Text(avurnav.details)
                .font(.body)
-
+            
             Spacer()
                .frame(height: 50.0)
-
+            
             Link("consulter le site de la Premar", destination: URL(string: avurnav.link)!)
                .font(.body)
          }
@@ -86,9 +86,16 @@ struct AvurnavDetail: View {
       }
       .navigationTitle(avurnavNumber)
       .navigationBarTitleDisplayMode(.inline)
+      .onAppear() {
+         if avurnav.isUnread {
+            avurnav.isUnread = false
+         }
+      }
    }
+   }
+  
 
-}
+
 
 #if DO_NOT_BUILD
 struct AvurnavDetail_Previews: PreviewProvider {

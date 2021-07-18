@@ -11,6 +11,8 @@ import SwiftUI
 
 struct AvurnavList: View {
    @EnvironmentObject var modelData : ModelData
+   @StateObject var avurnav : InfoNavItem = InfoNavItem()
+
    @State private var filterApplied = false
    @State private var showPinnedOnly = false
    @State private var ShowUnreadOnly = false
@@ -50,7 +52,8 @@ struct AvurnavList: View {
    var body: some View {
       NavigationView {
          List {
-            ForEach(filteredAvurnavs) { avurnav in
+            //for self.avurnav in filteredAvurnavs {
+            ForEach(filteredAvurnavs) {avurnav in
                NavigationLink(destination:AvurnavDetail(avurnav : avurnav, region : self.region, info : self.info)){
                   AvurnavRow(avurnav: avurnav)
                }
