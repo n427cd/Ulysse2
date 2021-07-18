@@ -60,8 +60,9 @@ class InfoNavItem : Equatable, Hashable, Codable, Identifiable {
    }
    /// vrai si le message fait partie des favoris
    var isPinned : Bool = false
-
-   /// 
+   /// vrai si le message n'est pas lu
+   var isUnread = true
+   
    private var imageName: String = ""
 
    //TODO: #2 implementer un getter et setter de isNew
