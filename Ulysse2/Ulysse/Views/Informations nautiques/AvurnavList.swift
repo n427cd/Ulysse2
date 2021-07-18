@@ -11,7 +11,9 @@ import SwiftUI
 
 struct AvurnavList: View {
    @EnvironmentObject var modelData : ModelData
+   @State private var filterApplied = false
    @State private var showPinnedOnly = false
+   @State private var ShowUnreadOnly = false
 
    var region : Premar
    var info : typeInformation
@@ -34,7 +36,8 @@ struct AvurnavList: View {
 
    var filteredAvurnavs:[InfoNavItem] {
       modelData.infoData[region.rawValue][info.rawValue].items.filter {
-         avurnav in (!showPinnedOnly || avurnav.isPinned)
+         avurnav in ((!showPinnedOnly || avurnav.isPinned) &&
+         (!ShowUnreadOnly || avurnav.isUnread))
       }
    }
 
@@ -59,7 +62,7 @@ struct AvurnavList: View {
 
          .navigationBarItems(leading:
                               HStack {
-                                 Text("Bientôt...")
+                                 Text("Menu")
 //                                 Menu(modelData.Region) {
 //                                    if(modelData.Region != "Atlantique") {
 //                                       Button("Atlantique", action: { [self] in
