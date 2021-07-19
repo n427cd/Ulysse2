@@ -8,16 +8,25 @@
 import SwiftUI
 
 struct AvurnavRow: View {
-   var avurnav : InfoNavItem
+   @ObservedObject var avurnav : InfoNavItem
 
    var body: some View {
       HStack(alignment: .center) {
-         if(avurnav.isNewItem) {
+         if(avurnav.isUnread) {
          Image(systemName: "circle.fill")    
             .resizable()
             .frame(width:8, height:8)
             .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
             .offset(y: -12)
+         }
+         else {
+            if(avurnav.isNewItem) {
+            Image(systemName: "circle")
+               .resizable()
+               .frame(width:8, height:8)
+               .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
+               .offset(y: -12)
+            }
          }
          VStack(alignment: .leading) {
             Text(avurnav.details)

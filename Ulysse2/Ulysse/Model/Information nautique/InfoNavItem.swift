@@ -9,7 +9,11 @@ import CoreLocation.CLLocation
 
 /// Contient le détail des informations nautiques émises par la Premar
 
-class InfoNavItem : Equatable, Hashable, Codable, Identifiable {
+class InfoNavItem : Equatable, Hashable, Codable,  Identifiable, ObservableObject {
+   /// vrai si le message fait partie des favoris
+   var isPinned : Bool = false
+   /// vrai si le message n'a pas été lu
+   var isUnread : Bool = true
 
    /// Opérateur `equal-to` pour le protocole `Equatable`
    ///
@@ -27,7 +31,6 @@ class InfoNavItem : Equatable, Hashable, Codable, Identifiable {
 
 
    // Fonction de hashage pour le protocole `Hashable`
-
 
    func hash(into hasher: inout Hasher) {
       hasher.combine(id)
@@ -58,11 +61,8 @@ class InfoNavItem : Equatable, Hashable, Codable, Identifiable {
    var locationCoordinate : CLLocationCoordinate2D {
       CLLocationCoordinate2D(latitude: lat, longitude: lon)
    }
-   /// vrai si le message fait partie des favoris
-   var isPinned : Bool = false
-   /// vrai si le message n'est pas lu
-   var isUnread = true
-   
+
+   /// 
    private var imageName: String = ""
 
    //TODO: #2 implementer un getter et setter de isNew

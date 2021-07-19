@@ -116,7 +116,8 @@ struct ContentView: View {
          let info = modelData.infoData[0][0]
 
          Text("Description :\(info.sourceDescription)")
-         Text("Publié : \(info.publishedOn!)")
+//TODO:décommenter la ligne suivante
+//         Text("Publié : \(info.publishedOn!)")
          }
       }
     }

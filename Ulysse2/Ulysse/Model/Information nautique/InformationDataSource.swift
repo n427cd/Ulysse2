@@ -304,6 +304,8 @@ class InformationDataSource : Codable {
          let data = try encoder.encode(self)
 
          fileManager.createFile(atPath: fileName.path, contents: data, attributes: nil)
+         
+         print("Enregistrement de \(fileName.path)")
       }
       catch
       {
