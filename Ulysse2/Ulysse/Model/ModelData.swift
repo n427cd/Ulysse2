@@ -34,7 +34,7 @@ final class ModelData : ObservableObject {
          case .manche :  urlRegionName = "B"
          case .mediterranee : urlRegionName = "C"
          }
-         for type in typeInformation.allCases {
+         for type in TypeInformation.allCases {
             var infoName : String
             switch type {
             case .urgent : infoName = "U"
@@ -62,7 +62,7 @@ final class ModelData : ObservableObject {
       for region in Premar.allCases {
          var temp : [InformationDataSource] = []
         
-         for category in typeInformation.allCases {
+         for category in TypeInformation.allCases {
             temp.append(InformationDataSource(region: region, info: category))
             
             if let savedFeed = temp[category.rawValue].loadFromDisk() {
