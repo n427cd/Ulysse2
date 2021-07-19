@@ -91,8 +91,7 @@ struct AvurnavDetail: View {
             
             //BUGFIX : résoud le problème de mise à jour des `AvurnavRow`
             avurnav.objectWillChange.send()
-            
-            avurnav.isUnread = false
+            avurnav.setRead(true)
          }
       }
    }
