@@ -52,8 +52,32 @@ enum downloadError : Error
 class InformationDataSource : Codable {
    /// Premar émettant les informations
    var region : Premar
+   /// Type des informations téléchargées (avinav, avurnav, ...)
+   var nature : TypeInformation
+   /// Date de publication par le propriétaire des données
+   var publishedOn : Date?
+   /// Date du dernier chargement avec nouvelle entrée
+   var lastModifiedOn : Date?
+   /// Date de la dernière interrogation du serveur
+   var lastCheckedServer : Date?
+   /// liste des messages
+   var items : [InfoNavItem]
+   /// Description du flux
+   var sourceDescription : String = ""
+
+
+   /// L'initialisation de la source d'information consiste à définir la Premar
+   /// et le type de messages
+
+   init(region : Premar, info : TypeInformation) {
+      self.region = region
+      self.nature = info
+      items = []
+   }
+
 
    /// URL de la source de données
+
    func sourceURL() -> String {
       var urlRegionName : String
       switch self.region {
@@ -72,29 +96,6 @@ class InformationDataSource : Codable {
       return "https://www.premar-\(urlRegionName).gouv.fr/avis/rss/\(infoName)?format=rss"
    }
 
-
-
-   /// Date de publication par le propriétaire des données
-   var publishedOn : Date? //= nil
-   /// Date du dernier chargement avec nouvelle entrée
-   var lastModifiedOn : Date?// = nil
-   /// Date de la dernière interrogation du serveur
-   var lastCheckedServer : Date?// = nil
-   /// Type des informations téléchargées (avinav, avurnav, ...)
-   var nature : TypeInformation
-   /// liste des messages
-   var items : [InfoNavItem]
-   /// Description du flux
-   var sourceDescription : String = ""
-
-
-   /// L'initialisation de la source d'information consiste à définir la Premar
-   /// et le type de messages
-   init(region : Premar, info : TypeInformation) {
-      self.region = region
-      self.nature = info
-      items = []
-   }
 
    /// URL de la sauvegarde locale de la source de données
 
@@ -118,37 +119,49 @@ class InformationDataSource : Codable {
    }
 
 
-   fileprivate func backupIsOld(_ webFeed: InformationDataSource, _ now: Date) -> Bool {
+   /// Vérifie si la sauvegarde locale est ancienne par rapport au flux RSS
+
+   fileprivate func isBackupOld(_ webFeed: InformationDataSource, _ now: Date) -> Bool {
       // Parfois la date de publication du flux
       // n'est pas mise à jour par la premar. On regarde
       // donc si la date du flux n'est pas trop vieille
-      // (86400 = 1 journée)
+
       return webFeed.publishedOn != nil  &&
          ((publishedOn! < webFeed.publishedOn!) ||
             publishedOn!.addingTimeInterval(INTERVAL_24HOURS) < now)
    }
+
+
+   /// Met à jour la sauvegarde locale
 
    fileprivate func updateBackup(timestamp now: Date) {
       saveOnDisk()
       lastModifiedOn = now
    }
 
-   fileprivate func updateHeader(from webFeed: InformationDataSource) {
-      // La version sauvegardée est plus ancienne,
-      // On la remplace par le flux qui vient d'être
-      // téléchargé
 
+   /// copie les données générales (`publishedOn` et `sourceDescription`) à
+   /// partir des mêmes informations disponibles sur la source `from`
+   /// - parameter webFeed : `InformationDataSource` source pour la copie
+
+   fileprivate func copyGeneralData(from webFeed: InformationDataSource) {
       publishedOn = webFeed.publishedOn
       sourceDescription = webFeed.sourceDescription
    }
 
 
-   fileprivate func updateItemsFromWebFeed(_ webFeed : InformationDataSource) -> (Bool, [InfoNavItem]){
-
+   /// met à jour les avis aux navigateurs, en assurant la fusion entre les
+   /// anciennes données et le flux du web
+   fileprivate func updateItemsFromWebFeed(_ webFeed : InformationDataSource) -> (Bool, [InfoNavItem]) {
       let flux = Set<InfoNavItem>(webFeed.items)
 
+      // création de ce Set pour récupérer les items actuels plutôt que ceux
+      // du flux dont le statut `isUnread` n'est pas à jour
+      let currentdata = Set<InfoNavItem>(items)
+
       let newItems = flux.subtracting(self.items)
-      let oldItems = flux.intersection(self.items)
+      let oldItems = currentdata.intersection(flux)
+
       let previousCount = items.count
 
       for item in oldItems { item.setNew(false) }
@@ -194,8 +207,13 @@ class InformationDataSource : Codable {
       if let savedFeed = loadFromDisk()
       {
          backupExists = true
-         updateHeader(from:savedFeed)
-         items = savedFeed.items.sorted(by:navItemsSort)
+         if (items.count == 0)
+         {
+            // ne récupérer les données du fichier qu'en l'absence de données
+            // en mémoire
+            copyGeneralData(from:savedFeed)
+            items = savedFeed.items.sorted(by:navItemsSort)
+         }
       }
 
       // on télécharge les informations à partir du flux RSS
@@ -208,14 +226,14 @@ class InformationDataSource : Codable {
 
          if(backupExists)
          {
-            if(backupIsOld(webFeed, now))
+            if(isBackupOld(webFeed, now))
             {
                let shouldUpdateBackup : Bool
 
                (shouldUpdateBackup,items) = updateItemsFromWebFeed(webFeed)
                items.sort(by: navItemsSort)
 
-               updateHeader(from:webFeed)
+               copyGeneralData(from:webFeed)
 
                // on sauvegarde si la liste des messages a évolué
                if (shouldUpdateBackup) {
@@ -232,7 +250,7 @@ class InformationDataSource : Codable {
 
             items = webFeed.items.sorted(by: navItemsSort)
 
-            updateHeader(from: webFeed)
+            copyGeneralData(from: webFeed)
             updateBackup(timestamp: now)
          }
       }

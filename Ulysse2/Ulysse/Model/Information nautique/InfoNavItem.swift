@@ -67,6 +67,7 @@ class InfoNavItem : Equatable, Hashable, Codable,  Identifiable, ObservableObjec
 
    //TODO: #2 implementer un getter et setter de isNew
    func setNew(_ flag : Bool) { isNewItem = flag }
+   func setRead(_ flag : Bool) { isUnread = !flag }
 }
 
 
