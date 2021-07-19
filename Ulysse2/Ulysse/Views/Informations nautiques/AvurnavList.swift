@@ -95,7 +95,7 @@ struct AvurnavList: View {
       }
       .onAppear() {
         //print("AvurnavList.onAppear")
-        //modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
+        modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
       }
       // savegarde des modifications apportées à la liste des informations pour
       // assurer leur persistence (en particulier les favoris)

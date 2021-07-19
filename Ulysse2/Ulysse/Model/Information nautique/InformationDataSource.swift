@@ -207,8 +207,13 @@ class InformationDataSource : Codable {
       if let savedFeed = loadFromDisk()
       {
          backupExists = true
-         copyGeneralData(from:savedFeed)
-         items = savedFeed.items.sorted(by:navItemsSort)
+         if (items.count == 0)
+         {
+            // ne récupérer les données du fichier qu'en l'absence de données
+            // en mémoire
+            copyGeneralData(from:savedFeed)
+            items = savedFeed.items.sorted(by:navItemsSort)
+         }
       }
 
       // on télécharge les informations à partir du flux RSS
