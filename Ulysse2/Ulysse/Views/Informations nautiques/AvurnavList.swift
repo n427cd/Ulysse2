@@ -11,7 +11,6 @@ import SwiftUI
 
 struct AvurnavList: View {
    @EnvironmentObject var modelData : ModelData
-   @StateObject var avurnav : InfoNavItem = InfoNavItem()
 
    @State private var filterApplied = false
    @State private var showPinnedOnly = false
@@ -102,7 +101,11 @@ struct AvurnavList: View {
       }
       // savegarde des modifications apportées à la liste des informations pour
       // assurer leur persistence (en particulier les favoris)
-      .onDisappear (perform: { modelData.infoData[region.rawValue][info.rawValue].saveOnDisk()})
+      .onDisappear (perform: {
+                     modelData.infoData[region.rawValue][info.rawValue].saveOnDisk()
+                     print("Sauvegarde de \(region)\(info) .onDisappear")
+         
+      })
    }
     
 }

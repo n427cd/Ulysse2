@@ -13,7 +13,7 @@ import MapKit
 
 struct AvurnavDetail: View {
    @EnvironmentObject var modelData : ModelData
-   @StateObject var avurnav : InfoNavItem
+   @ObservedObject var avurnav : InfoNavItem
    var region : Premar
    var info : typeInformation
    var isFirstAppear = true
@@ -88,6 +88,10 @@ struct AvurnavDetail: View {
       .navigationBarTitleDisplayMode(.inline)
       .onAppear() {
          if avurnav.isUnread {
+            
+            //BUGFIX : résoud le problème de mise à jour des `AvurnavRow`
+            avurnav.objectWillChange.send()
+            
             avurnav.isUnread = false
          }
       }
