@@ -15,13 +15,13 @@ struct AvurnavDetail: View {
    @EnvironmentObject var modelData : ModelData
    @ObservedObject var avurnav : InfoNavItem
    var region : Premar
-   var info : typeInformation
+   var info : TypeInformation
    var isFirstAppear = true
    var avurnavIndex : Int {
       modelData.infoData[region.rawValue][info.rawValue].items.firstIndex(where : {$0.id == avurnav.id }) ?? 0
    }
    
-   func qualificatif(_ type : typeInformation)->String
+   func qualificatif(_ type : TypeInformation)->String
    {
       switch type
       {

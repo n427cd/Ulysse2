@@ -17,7 +17,7 @@ struct AvurnavList: View {
    @State private var ShowUnreadOnly = false
 
    var region : Premar
-   var info : typeInformation
+   var info : TypeInformation
 
    var descriptionInfo : String {
       switch info {
@@ -42,7 +42,7 @@ struct AvurnavList: View {
       }
    }
 
-   init(region : Premar, info : typeInformation)
+   init(region : Premar, info : TypeInformation)
    {
       self.region = region
       self.info = info
