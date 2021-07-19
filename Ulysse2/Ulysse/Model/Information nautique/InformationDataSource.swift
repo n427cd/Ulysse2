@@ -26,7 +26,7 @@ enum Premar : Int, CaseIterable, Codable {
 /// `.normal` : avinavs
 /// `.rade` : avirade
 
-enum typeInformation : Int, CaseIterable, Codable {
+enum TypeInformation : Int, CaseIterable, Codable {
    case urgent
    case normal
    case rade
@@ -81,7 +81,7 @@ class InformationDataSource : Codable {
    /// Date de la dernière interrogation du serveur
    var lastCheckedServer : Date?// = nil
    /// Type des informations téléchargées (avinav, avurnav, ...)
-   var nature : typeInformation
+   var nature : TypeInformation
    /// liste des messages
    var items : [InfoNavItem]
    /// Description du flux
@@ -90,7 +90,7 @@ class InformationDataSource : Codable {
 
    /// L'initialisation de la source d'information consiste à définir la Premar
    /// et le type de messages
-   init(region : Premar, info : typeInformation) {
+   init(region : Premar, info : TypeInformation) {
       self.region = region
       self.nature = info
       items = []
