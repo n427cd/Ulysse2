@@ -5,23 +5,30 @@
 //  Created by Eric Duchenne on 04/05/2021.
 //
 
-//import Foundation
 import CoreLocation
-//import Combine
 
 
+/// Interrupteur commandant la montée de version des schémas d'enregistrement
+/// des fichiers de sauvegarde
 let SCHEMA_UPGRADE = false
 
+
 /// Modèle des données de l'application
-///
+
 final class ModelData : ObservableObject {
    @Published var Region : String = "Atlantique"
    @Published var infoData : [[InformationDataSource]] = []
    @Published var navs : [Route] = LoadRouteLibrary()
 
 
+   /// Nettoyage des fichiers de sauvegarde des infos aux navigateurs
+   ///
+   /// - Attention : ne doit être appelée que lors des montées de version du
+   ///               schéma d'enregistrement, activées en passant `SCHEMA_UPGRADE`
+   ///               à `true`
 
    func cleanDirectoryForSchemaUpgrade() {
+      assert(SCHEMA_UPGRADE == false, "Montée de version activé. Vérifier")
       if (SCHEMA_UPGRADE == false) { return }
 
       let fileManager = FileManager.default
@@ -52,12 +59,22 @@ final class ModelData : ObservableObject {
    }
 
 
+   /// Initialisation du Model Data
+   ///
+   /// Récupère les flux d'information
+   ///
+   /// - note : la maintenance des fichiers peut être effectuée en agissant
+   /// sur l'interrupteur `SCHEMA_UPGRADE` qui doit normalement rester sur la
+   /// valeur `false`
+
    init() {
+
+      // Si nécessaire, effacer les fichiers
 
       cleanDirectoryForSchemaUpgrade()
 
       // Les sauvegardes sont lues lors de l'initialisation. La mise à jour
-    // du flux RSS a lieu lors de l'ouverture de la vue `AvurnavList`
+      // du flux RSS a lieu lors de l'ouverture de la vue `AvurnavList`
 
       for region in Premar.allCases {
          var temp : [InformationDataSource] = []
@@ -71,20 +88,20 @@ final class ModelData : ObservableObject {
          }
 
          infoData.append(temp)
-
-//         async temp[0].downloadFeed()
-//         async temp[1].downloadFeed()
-//         async temp[2].downloadFeed()
-//         wait infoData.append(temp)
       }
    }
 }
 
 
+/// Télécharge et décode le flux RSS
+/// - parameter urlName : url du flux à télécharger
+/// - returns : le flux décodé dans un `InformationDataSource`
+/// - throws  :
+///   - `downloadError.invalidURL`   si l'url passée n'est pas correcte
+///   - `downloadError.invalidSyntax`  si le décodage n'est pas possible
+func downloadAndDecodeRssFeed(_ urlName: String) throws -> InformationDataSource {
 
-func downloadAndDecodeRssFeed(_ filename: String) throws -> InformationDataSource {
-
-   guard let file = URL(string:filename)
+   guard let file = URL(string:urlName)
    else
    {  // URL invalide
       throw downloadError.invalidURL  
