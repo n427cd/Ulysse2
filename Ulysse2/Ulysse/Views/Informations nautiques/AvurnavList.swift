@@ -15,6 +15,7 @@ struct AvurnavList: View {
    //@State private var filterApplied = false
    @State private var showPinnedOnly = false
    @State private var ShowUnreadOnly = false
+//   @State private var NewUnread : Int = 0
 
    var region : Premar
    var info : TypeInformation
@@ -42,6 +43,32 @@ struct AvurnavList: View {
       }
    }
 
+   var filteredOldAvurnavs:[InfoNavItem] {
+      modelData.infoData[region.rawValue][info.rawValue].items.filter {
+         avurnav in ((!showPinnedOnly || avurnav.isPinned) &&
+                        (!avurnav.isNewItem))
+      }
+   }
+   var filteredNewAvurnavs:[InfoNavItem] {
+      modelData.infoData[region.rawValue][info.rawValue].items.filter {
+         avurnav in ((!showPinnedOnly || avurnav.isPinned) &&
+                        (avurnav.isNewItem))
+      }
+   }
+   var filteredUnreadNewAvurnavs:[InfoNavItem] {
+      modelData.infoData[region.rawValue][info.rawValue].items.filter {
+         avurnav in ((!showPinnedOnly || avurnav.isPinned) &&
+                        (avurnav.isNewItem && avurnav.isUnread))
+      }
+   }
+   var filteredUnreadOldAvurnavs:[InfoNavItem] {
+      modelData.infoData[region.rawValue][info.rawValue].items.filter {
+         avurnav in ((!showPinnedOnly || avurnav.isPinned) &&
+                        (!avurnav.isNewItem && avurnav.isUnread))
+      }
+   }
+
+
    init(region : Premar, info : TypeInformation)
    {
       self.region = region
@@ -49,14 +76,51 @@ struct AvurnavList: View {
    }
 
    var body: some View {
+      
       NavigationView {
          List {
-            //for self.avurnav in filteredAvurnavs {
-            ForEach(filteredAvurnavs) {avurnav in
+            Section(header:
+                     HStack {
+                        Image(systemName: "tray.and.arrow.down")
+                           .foregroundColor(.blue)
+                        VStack {
+                           Text("Nouveaux avis")
+                              .font(.headline)
+                              .foregroundColor(.blue)
+                           Text("\(filteredNewAvurnavs.count) avis, dont \(filteredUnreadNewAvurnavs.count) non lus")
+                              .font(.footnote)
+                              .foregroundColor(.gray)
+                        }
+                     }) {
+
+               ForEach(filteredNewAvurnavs) {avurnav in
+                  NavigationLink(destination:AvurnavDetail(avurnav : avurnav, region : self.region, info : self.info)){
+                     AvurnavRow(avurnav: avurnav)
+                  }
+               }
+            }
+            Section(header:
+                     HStack {
+                        Image(systemName: "tray")
+                           .foregroundColor(.blue)
+                        VStack {
+                        Text("Avis précédents")
+                           .font(.headline)
+                           .foregroundColor(.blue)
+                           Text("\(filteredOldAvurnavs.count) avis, dont \(filteredUnreadOldAvurnavs.count)  non lus")
+                              .font(.footnote)
+                              .foregroundColor(.gray)
+                        }
+
+                     }) {
+
+            ForEach(filteredOldAvurnavs) {avurnav in
                NavigationLink(destination:AvurnavDetail(avurnav : avurnav, region : self.region, info : self.info)){
                   AvurnavRow(avurnav: avurnav)
                }
             }
+            }
+
          }
          .navigationBarTitle("Avis \(descriptionInfo) à la navigation", displayMode: .inline)
          .navigationBarItems(leading:

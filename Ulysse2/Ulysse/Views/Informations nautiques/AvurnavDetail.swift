@@ -59,6 +59,7 @@ struct AvurnavDetail: View {
             HStack {
                Text(avurnav.title)
                   .font(.title2)
+
                PinButton(isSet: $modelData.infoData[region.rawValue][info.rawValue].items[avurnavIndex].isPinned)
             }
             HStack {
@@ -91,7 +92,7 @@ struct AvurnavDetail: View {
             
             //BUGFIX : résoud le problème de mise à jour des `AvurnavRow`
             avurnav.objectWillChange.send()
-            avurnav.setRead(true)
+            modelData.infoData[region.rawValue][info.rawValue].items[avurnavIndex].setRead(true)
          }
       }
    }

@@ -90,7 +90,7 @@ class InformationDataSource : Codable {
       switch self.nature {
       case .urgent : infoName = "AVURNAV"
       case .normal : infoName = "AVINAV"
-      case .rade : infoName = "AVIRADE"
+      case .rade : infoName = "AVIRAD"
       }
 
       return "https://www.premar-\(urlRegionName).gouv.fr/avis/rss/\(infoName)?format=rss"
