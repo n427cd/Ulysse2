@@ -52,6 +52,27 @@ enum downloadError : Error
 class InformationDataSource : Codable {
    /// Premar émettant les informations
    var region : Premar
+   /// Type des informations téléchargées (avinav, avurnav, ...)
+   var nature : TypeInformation
+   /// Date de publication par le propriétaire des données
+   var publishedOn : Date?
+   /// Date du dernier chargement avec nouvelle entrée
+   var lastModifiedOn : Date?
+   /// Date de la dernière interrogation du serveur
+   var lastCheckedServer : Date?
+   /// liste des messages
+   var items : [InfoNavItem]
+   /// Description du flux
+   var sourceDescription : String = ""
+
+
+   /// L'initialisation de la source d'information consiste à définir la Premar
+   /// et le type de messages
+   init(region : Premar, info : TypeInformation) {
+      self.region = region
+      self.nature = info
+      items = []
+   }
 
    /// URL de la source de données
    func sourceURL() -> String {
@@ -70,30 +91,6 @@ class InformationDataSource : Codable {
       }
 
       return "https://www.premar-\(urlRegionName).gouv.fr/avis/rss/\(infoName)?format=rss"
-   }
-
-
-
-   /// Date de publication par le propriétaire des données
-   var publishedOn : Date? //= nil
-   /// Date du dernier chargement avec nouvelle entrée
-   var lastModifiedOn : Date?// = nil
-   /// Date de la dernière interrogation du serveur
-   var lastCheckedServer : Date?// = nil
-   /// Type des informations téléchargées (avinav, avurnav, ...)
-   var nature : TypeInformation
-   /// liste des messages
-   var items : [InfoNavItem]
-   /// Description du flux
-   var sourceDescription : String = ""
-
-
-   /// L'initialisation de la source d'information consiste à définir la Premar
-   /// et le type de messages
-   init(region : Premar, info : TypeInformation) {
-      self.region = region
-      self.nature = info
-      items = []
    }
 
    /// URL de la sauvegarde locale de la source de données
