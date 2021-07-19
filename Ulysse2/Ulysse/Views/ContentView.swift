@@ -31,7 +31,7 @@ struct ContentView: View {
                NavigationLink("Avis rade", destination: AvurnavList(region: .atlantique, info: .rade)
                                  .environmentObject(modelData)
                                  .navigationBarHidden(true))
-                  .disabled(modelData.infoData[Premar.atlantique.rawValue][typeInformation.rade.rawValue].items.count == 0)
+                  .disabled(modelData.infoData[Premar.atlantique.rawValue][TypeInformation.rade.rawValue].items.count == 0)
             }
             //.navigationTitle("Information nautique")
 
