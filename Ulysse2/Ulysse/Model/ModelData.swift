@@ -5,12 +5,12 @@
 //  Created by Eric Duchenne on 04/05/2021.
 //
 
-import Foundation
+//import Foundation
 import CoreLocation
-import Combine
+//import Combine
 
 
-let SCHEMA_UPGDRADE = true
+let SCHEMA_UPGRADE = false
 
 /// Modèle des données de l'application
 ///
@@ -22,12 +22,30 @@ final class ModelData : ObservableObject {
 
 
    func cleanDirectoryForSchemaUpgrade() {
-      if SCHEMA_UPGRADE == false { return }
+      if (SCHEMA_UPGRADE == false) { return }
 
-      for region in Premar.allCases
-         for type in typeInformation.allCases
+      let fileManager = FileManager.default
+      let docsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+
+      for region in Premar.allCases {
+         var urlRegionName : String
+         switch region {
+         case .atlantique :  urlRegionName = "A"
+         case .manche :  urlRegionName = "B"
+         case .mediterranee : urlRegionName = "C"
+         }
+         for type in typeInformation.allCases {
+            var infoName : String
+            switch type {
+            case .urgent : infoName = "U"
+            case .normal : infoName = "N"
+            case .rade : infoName = "R"
+            }
+
+            let path = "infonav\(urlRegionName)\(infoName).data"
             do {
-               try fileManager.remove(at: sourceInfo[region][type].localUrl())
+               print ("Deleting \(path)")
+               try fileManager.removeItem(at: docsDir[0].appendingPathComponent(path))
             } catch {}
          }
       }
