@@ -12,7 +12,7 @@ import SwiftUI
 struct AvurnavList: View {
    @EnvironmentObject var modelData : ModelData
 
-   @State private var filterApplied = false
+   //@State private var filterApplied = false
    @State private var showPinnedOnly = false
    @State private var ShowUnreadOnly = false
 
@@ -58,10 +58,7 @@ struct AvurnavList: View {
                }
             }
          }
-         .navigationBarTitle("Avis \(descriptionInfo)à la navigation", displayMode: .inline)
-
-
-
+         .navigationBarTitle("Avis \(descriptionInfo) à la navigation", displayMode: .inline)
          .navigationBarItems(leading:
                               HStack {
                                  Text("Menu")
@@ -97,7 +94,8 @@ struct AvurnavList: View {
          AvurnavListOptions()
       }
       .onAppear() {
-        modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
+        //print("AvurnavList.onAppear")
+        //modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
       }
       // savegarde des modifications apportées à la liste des informations pour
       // assurer leur persistence (en particulier les favoris)
