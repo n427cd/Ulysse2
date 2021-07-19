@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AvurnavRow: View {
+   @EnvironmentObject var modelData : ModelData
    @ObservedObject var avurnav : InfoNavItem
 
    var body: some View {
