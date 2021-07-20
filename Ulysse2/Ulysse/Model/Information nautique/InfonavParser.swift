@@ -7,12 +7,15 @@
 
 import Foundation
 
+
 /// Analyseur de flux RSS de la Premar
 
 class  InfoNavParser: XMLParser {
 
+   var latestPublishedItemDate : Date
    /// Initialisation
    override init(data: Data) {
+      self.latestPublishedItemDate = .distantPast
       super.init(data: data)
       self.delegate = self
    }
@@ -245,7 +248,7 @@ extension InfoNavParser: XMLParserDelegate {
                   curItem?.id = String(textBuffer[r])
                }
             }
-         default:
+         case .other:
             break
          }
 
@@ -260,7 +263,7 @@ extension InfoNavParser: XMLParserDelegate {
          case .inItem:
             curItem?.link = textBuffer
 
-         default:
+         case .other:
             break
          }
 
@@ -276,7 +279,7 @@ extension InfoNavParser: XMLParserDelegate {
                curItem?.lon = lon!
             }
 
-         default:
+         case .other:
             // ajouter la date de publication au flux
             infosSourceRead.sourceDescription = textBuffer
          }
@@ -287,13 +290,22 @@ extension InfoNavParser: XMLParserDelegate {
          {
          case .inItem:
             curItem?.pubDate = date!
+            if(date! > latestPublishedItemDate) {
+               latestPublishedItemDate = date!
+            }
 
-         default:
+         case .other:
             infosSourceRead.publishedOn = date!
          }
 
       case "category":
          curItem?.category = textBuffer
+
+      case "channel":
+         if( infosSourceRead.publishedOn! < latestPublishedItemDate) {
+            infosSourceRead.publishedOn = latestPublishedItemDate
+         }
+         latestPublishedItemDate = .distantPast
 
       default:
          break
