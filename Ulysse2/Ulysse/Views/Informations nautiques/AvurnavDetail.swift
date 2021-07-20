@@ -92,7 +92,9 @@ struct AvurnavDetail: View {
             
             //BUGFIX : résoud le problème de mise à jour des `AvurnavRow`
             avurnav.objectWillChange.send()
-            modelData.infoData[region.rawValue][info.rawValue].items[avurnavIndex].setRead(true)
+            modelData.objectWillChange.send()
+            avurnav.setRead(true)
+//            modelData.infoData[region.rawValue][info.rawValue].items[avurnavIndex].setRead(true)
          }
       }
    }

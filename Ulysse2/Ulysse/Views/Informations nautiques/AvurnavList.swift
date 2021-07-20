@@ -159,6 +159,7 @@ struct AvurnavList: View {
       }
       .onAppear() {
         //print("AvurnavList.onAppear")
+         modelData.objectWillChange.send()
         modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
       }
       // savegarde des modifications apportées à la liste des informations pour
