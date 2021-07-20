@@ -9,12 +9,7 @@ import CoreLocation.CLLocation
 
 /// Contient le détail des informations nautiques émises par la Premar
 
-class InfoNavItem : Equatable, Hashable, Codable,  Identifiable, ObservableObject {
-   /// vrai si le message fait partie des favoris
-   var isPinned : Bool = false
-   /// vrai si le message n'a pas été lu
-   var isUnread : Bool = true
-
+class InfoNavItem : Equatable, Hashable, Codable, Identifiable, ObservableObject {
    /// Opérateur `equal-to` pour le protocole `Equatable`
    ///
    /// Deux messages sont identiques s'il ont le même numéro et la mâme date de
@@ -36,6 +31,11 @@ class InfoNavItem : Equatable, Hashable, Codable,  Identifiable, ObservableObjec
       hasher.combine(id)
       hasher.combine(pubDate)
    }
+
+   /// vrai si le message fait partie des favoris
+   var isPinned : Bool = false
+   /// vrai si le message n'a pas été lu
+   var isUnread : Bool = true
 
 
    //BUG : la numérotation est donnée par Premar. Deux avis peuvent donc avoir le même numéro -> ajouter le code de la région à l'ID
