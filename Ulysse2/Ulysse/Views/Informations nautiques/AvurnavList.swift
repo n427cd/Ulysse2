@@ -11,15 +11,15 @@ import SwiftUI
 
 struct AvurnavList: View {
    @EnvironmentObject var modelData : ModelData
-
+   
    //@State private var filterApplied = false
    @State private var showPinnedOnly = false
    @State private var ShowUnreadOnly = false
-//   @State private var NewUnread : Int = 0
-
+   //   @State private var NewUnread : Int = 0
+   
    var region : Premar
    var info : TypeInformation
-
+   
    var descriptionInfo : String {
       switch info {
       case .urgent : return "urgents "
@@ -27,7 +27,7 @@ struct AvurnavList: View {
       case .rade : return "rade "
       }
    }
-
+   
    var shortDescription : String {
       switch info {
       case .urgent : return "AVURNAV"
@@ -35,14 +35,14 @@ struct AvurnavList: View {
       case .rade : return "AVIRADE"
       }
    }
-
+   
    var filteredAvurnavs:[InfoNavItem] {
       modelData.infoData[region.rawValue][info.rawValue].items.filter {
          avurnav in ((!showPinnedOnly || avurnav.isPinned) &&
-         (!ShowUnreadOnly || avurnav.isUnread))
+                        (!ShowUnreadOnly || avurnav.isUnread))
       }
    }
-
+   
    var filteredOldAvurnavs:[InfoNavItem] {
       modelData.infoData[region.rawValue][info.rawValue].items.filter {
          avurnav in ((!showPinnedOnly || avurnav.isPinned) &&
@@ -67,14 +67,14 @@ struct AvurnavList: View {
                         (!avurnav.isNewItem && avurnav.isUnread))
       }
    }
-
-
+   
+   
    init(region : Premar, info : TypeInformation)
    {
       self.region = region
       self.info = info
    }
-
+   
    var body: some View {
       
       NavigationView {
@@ -92,9 +92,9 @@ struct AvurnavList: View {
                               .foregroundColor(.gray)
                         }
                      }) {
-
+               
                ForEach(filteredNewAvurnavs) {avurnav in
-                  NavigationLink(destination:AvurnavDetail(avurnav : avurnav, region : self.region, info : self.info)){
+                  NavigationLink(destination:AvurnavDetail(avurnav : avurnav, region : region, info : info)){
                      AvurnavRow(avurnav: avurnav)
                   }
                }
@@ -104,48 +104,47 @@ struct AvurnavList: View {
                         Image(systemName: "tray")
                            .foregroundColor(.blue)
                         VStack {
-                        Text("Avis précédents")
-                           .font(.headline)
-                           .foregroundColor(.blue)
+                           Text("Avis précédents")
+                              .font(.headline)
+                              .foregroundColor(.blue)
                            Text("\(filteredOldAvurnavs.count) avis, dont \(filteredUnreadOldAvurnavs.count)  non lus")
                               .font(.footnote)
                               .foregroundColor(.gray)
                         }
-
+                        
                      }) {
-
-            ForEach(filteredOldAvurnavs) {avurnav in
-               NavigationLink(destination:AvurnavDetail(avurnav : avurnav, region : self.region, info : self.info)){
-                  AvurnavRow(avurnav: avurnav)
+               
+               ForEach(filteredOldAvurnavs) {avurnav in
+                  NavigationLink(destination:AvurnavDetail(avurnav : avurnav, region : self.region, info : self.info)){
+                     AvurnavRow(avurnav: avurnav)
+                  }
                }
             }
-            }
-
+            
          }
          .navigationBarTitle("Avis \(descriptionInfo) à la navigation", displayMode: .inline)
          .navigationBarItems(leading:
                               HStack {
-                                 Text("Menu")
-//                                 Menu(modelData.Region) {
-//                                    if(modelData.Region != "Atlantique") {
-//                                       Button("Atlantique", action: { [self] in
-//                                          modelData.Region = "Atlantique"
-//                                          modelData.avurnavs = downloadXMLFileAsRequired(modelData.urlPremar)
-//                                       })
-//                                    }
-//                                    if(modelData.Region != "Manche") {
-//                                       Button("Manche", action: { [self] in
-//                                          modelData.Region = "Manche"
-//                                          modelData.avurnavs = downloadXMLFileAsRequired(modelData.urlPremar)
-//                                       })
-//                                    }
-//                                    if(modelData.Region != "Méditerranée") {
-//                                       Button("Méditerranée", action: { [self] in
-//                                          modelData.Region = "Méditerranée"
-//                                          modelData.avurnavs = downloadXMLFileAsRequired(modelData.urlPremar)
-//                                       })
-//                                    }
-//                                 }
+                                 //                                 Menu(modelData.Region) {
+                                 //                                    if(modelData.Region != "Atlantique") {
+                                 //                                       Button("Atlantique", action: { [self] in
+                                 //                                          modelData.Region = "Atlantique"
+                                 //                                          modelData.avurnavs = downloadXMLFileAsRequired(modelData.urlPremar)
+                                 //                                       })
+                                 //                                    }
+                                 //                                    if(modelData.Region != "Manche") {
+                                 //                                       Button("Manche", action: { [self] in
+                                 //                                          modelData.Region = "Manche"
+                                 //                                          modelData.avurnavs = downloadXMLFileAsRequired(modelData.urlPremar)
+                                 //                                       })
+                                 //                                    }
+                                 //                                    if(modelData.Region != "Méditerranée") {
+                                 //                                       Button("Méditerranée", action: { [self] in
+                                 //                                          modelData.Region = "Méditerranée"
+                                 //                                          modelData.avurnavs = downloadXMLFileAsRequired(modelData.urlPremar)
+                                 //                                       })
+                                 //                                    }
+                                 //                                 }
                               },
                              trailing:
                               HStack {
@@ -158,19 +157,18 @@ struct AvurnavList: View {
          AvurnavListOptions()
       }
       .onAppear() {
-        //print("AvurnavList.onAppear")
          modelData.objectWillChange.send()
-        modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
+         modelData.infoData[region.rawValue][info.rawValue].downloadFeed()
       }
       // savegarde des modifications apportées à la liste des informations pour
       // assurer leur persistence (en particulier les favoris)
       .onDisappear (perform: {
-                     modelData.infoData[region.rawValue][info.rawValue].saveOnDisk()
-                     print("Sauvegarde de \(region)\(info) .onDisappear")
+         modelData.infoData[region.rawValue][info.rawValue].saveOnDisk()
+         print("Sauvegarde de \(region)\(info) .onDisappear")
          
       })
    }
-    
+   
 }
 
 struct AvurnavList_Previews: PreviewProvider {
