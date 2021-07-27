@@ -48,7 +48,7 @@ class InfoNavItem : Equatable, Hashable, Codable, Identifiable, ObservableObject
    /// détail de l'avis
    var details : String = ""
    /// date de publication
-   var pubDate : Date = Date.init(timeIntervalSinceNow: 0)
+   var pubDate : Date = Date.distantPast
    /// catégorie de l'avis
    var category : String = ""
 
