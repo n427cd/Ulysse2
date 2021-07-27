@@ -43,7 +43,11 @@ struct AvurnavDetail: View {
    
    static let RelFormatter : RelativeDateTimeFormatter = {
       let formatter = RelativeDateTimeFormatter()
-      formatter.locale = NSLocale.current
+      //BUG: Locale.current retourne en_US
+      //formatter.locale = Locale.current
+      //print("Locale \(Locale.current.languageCode)")
+      formatter.locale = Locale.init(identifier: "fr_FR")
+      //print("Locale \(formatter.locale.languageCode)")
       formatter.unitsStyle = .full
       
       return formatter
