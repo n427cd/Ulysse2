@@ -56,7 +56,6 @@ struct AvurnavRow_Previews: PreviewProvider {
    static var avurnavs = ModelData().infoData[0][0].items
    static var previews: some View {
       Group {
-
          AvurnavRow(avurnav: avurnavs[1])
          AvurnavRow(avurnav: avurnavs[2])
       }

@@ -294,7 +294,7 @@ class InformationDataSource : Codable {
          }
          catch
          {
-            print("\(error) Problème de sauvegarde des avis à la navigation")
+            print("\(error) Problème de lecture des avis à la navigation")
             return nil
          }
       }
