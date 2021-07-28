@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import Ulysse
+@testable import InformationDataSource
 
 class UlysseTests: XCTestCase {
 
@@ -22,6 +23,19 @@ class UlysseTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
+
+   func testInitInformationDataSource() throws {
+      let ids = InformationDataSource(region: .atlantique, info: .normal)
+      XCTAssert(ids.region == Premar.atlantique)
+      XCTAssert(ids.nature == TypeInformation.normal)
+      XCTAssert(ids.items.count == 0)
+      XCTAssert(ids.publishedOn == nil )
+      XCTAssert(ids.lastModifiedOn == nil)
+      XCTAssert(ids.lastCheckedServer == nil)
+      XCTAssert(ids.sourceDescription == "")
+
+
+   }
 
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
