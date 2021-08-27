@@ -10,33 +10,35 @@ import CoreLocation
 
 struct ContentView: View {
    @StateObject private var modelData = ModelData()
-    var body: some View {
+   var body: some View {
       NavigationView {
          List {
             // Section information nautique
-
-            Section(header:
-                     HStack {
-                        Image(systemName: "books.vertical.fill")
-                        Text("Information nautique")
-                           .font(.headline)}
-                     .foregroundColor(.blue))
+            
+            Section(header: HStack {
+               Image(systemName: "books.vertical.fill")
+               Text("Information nautique")
+                  .font(.headline)
+            }
+            .foregroundColor(.blue))
             {
-               NavigationLink("Avis urgents", destination: AvurnavList(region: .atlantique, info: .urgent)
-                                    .environmentObject(modelData)
-                                    .navigationBarHidden(true))
+               NavigationLink("Avis urgents",
+                              destination: AvurnavList(region: .atlantique, info: .urgent)
+                                 .environmentObject(modelData)
+                                 .navigationBarHidden(false))
+                  .navigationBarTitleDisplayMode(.inline)
                NavigationLink("Avis de navigation", destination: AvurnavList(region: .atlantique, info: .normal)
-                                    .environmentObject(modelData)
-                                    .navigationBarHidden(true))
+                                 .environmentObject(modelData)
+                                 .navigationBarHidden(false))
+                  .navigationBarTitleDisplayMode(.inline)
                NavigationLink("Avis rade", destination: AvurnavList(region: .atlantique, info: .rade)
                                  .environmentObject(modelData)
-                                 .navigationBarHidden(true))
-                  .disabled(modelData.infoData[Premar.atlantique.rawValue][TypeInformation.rade.rawValue].items.count == 0)
+                                 .navigationBarTitleDisplayMode(.inline)
+                                 .navigationBarHidden(false))
             }
-            //.navigationTitle("Information nautique")
-
+            
             // Section météo
-
+            
             Section(header: HStack {
                      Image(systemName: "cloud.sun.rain.fill")
                      Text("Météo")
@@ -52,29 +54,25 @@ struct ContentView: View {
                                  .navigationBarHidden(true)
                )
             }
-            //.navigationTitle("Météo marine")
-
+            
             // Section marée
-
-
+            
             Section( header: HStack {
                         Image(systemName: "arrow.up.arrow.down")
-               Text("Marée")
-                  .font(.headline)}
+                        Text("Marée")
+                           .font(.headline)}
                         .foregroundColor(.blue))
             {
                NavigationLink("La Rochelle", destination: TideView()
-                              )
+               )
                HStack {
                   Image(systemName: "plus.app")
                   NavigationLink("", destination: EmptyView())
                }
             }
-            //.navigationTitle("Marée")
-            
-
+                        
             // Section passage
-
+            
             Section(header: HStack {
                      Image(systemName: "point.topleft.down.curvedto.point.bottomright.up")
                      Text("Passage")
@@ -86,14 +84,11 @@ struct ContentView: View {
                                  mapCenter: CLLocationCoordinate2D(latitude: 46.5,
                                                                    longitude: -2)
                               )
-
-                  .navigationBarHidden(true)
-                  .ignoresSafeArea()
-
-
+                              .navigationBarHidden(true)
+                              .ignoresSafeArea()
                )
-
-
+               
+               
                NavigationLink(modelData.navs[0].description,
                               destination: ScannedMapView(
                                  mapCenter: modelData.navs[0].center,
@@ -103,34 +98,52 @@ struct ContentView: View {
                )
                Image(systemName: "plus.app")
             }
-            //.navigationTitle("Passage")
          }
          .listStyle(SidebarListStyle())
-         VStack {
-         #if swift(>=5.4)
-         Text("Running Swift 5.4 or later")
-         #else
-         Text("Running old Swift (≤ 5.3)")
-            .font(.caption)
-         #endif
-         let info = modelData.infoData[0][0]
+         .navigationBarItems(trailing: Button(action: {}, label: {
+                                                Menu(modelData.Region) {
+                                                   switch modelData.Region {
+                                                   case "Atlantique" :
+                                                      Button("Manche - Mer du nord", action: {})
+                                                      Button("Méditerranée", action: {})
+                                                   case "Méditerrannée" :
+                                                      Button("Atlantique", action: {})
+                                                      Button("Manche - Mer du nord", action: {})
+                                                   default :
+                                                      Button("Atlantique", action: {})
+                                                      Button("Méditerranée", action: {})
+                                                   }
 
-         Text("Description :\(info.sourceDescription)")
-//TODO:décommenter la ligne suivante
-//         Text("Publié : \(info.publishedOn!)")
+         }}))
+
+         VStack {
+            #if swift(>=5.4)
+            Text("Running Swift 5.4 or later")
+            #else
+            Text("Running older Swift (≤ 5.3)")
+               .font(.caption)
+            #endif
+            let info = modelData.infoData[0][0]
+            
+            Text("Description :\(info.sourceDescription)")
+            
+            if let publishedOn = info.publishedOn {
+                     Text("Publié : \(publishedOn)")
+            }
+            else { Text("Pas de date de publication disponible")}
          }
       }
-    }
+   }
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-
-         ForEach(["iPhone SE (2nd generation)", "iPhone 11 Pro", "iPad Pro"], id: \.self) { deviceName in
-            ContentView()
-               .environmentObject(ModelData())
-               .previewDevice(PreviewDevice(rawValue: deviceName))
-               .previewDisplayName(deviceName)
-         }
-    }
+   static var previews: some View {
+      
+      ForEach(["iPhone SE (2nd generation)", "iPhone 11 Pro", "iPad Pro"], id: \.self) { deviceName in
+         ContentView()
+            .environmentObject(ModelData())
+            .previewDevice(PreviewDevice(rawValue: deviceName))
+            .previewDisplayName(deviceName)
+      }
+   }
 }
