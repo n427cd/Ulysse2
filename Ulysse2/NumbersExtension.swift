@@ -18,3 +18,10 @@ extension CGFloat {
     func deg2rad()->CGFloat {return DEG2RAD * self }
     func rad2deg()->CGFloat {return RAD2DEG * self }
 }
+
+
+extension CGPoint {
+   @inlinable func squaredDist(to p : CGPoint)->CGFloat { return (self.x - p.x) * (self.x - p.x) + (self.y - p.y) * (self.y - p.y)}
+   @inlinable func distance(to p : CGPoint)->CGFloat { return sqrt((self.x - p.x) * (self.x - p.x) + (self.y - p.y) * (self.y - p.y))}
+
+}
