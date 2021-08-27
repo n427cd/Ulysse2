@@ -31,7 +31,7 @@ struct ScannedMapView: View {
 
    var currentCenter : CLLocationCoordinate2D      // coord. (lat lon) du centre de la carte
    var initialCenter : CLLocationCoordinate2D      // coord. du point initial à afficher
-
+   
    let cgimg : CGImage
 
    let X_A, X_B : Double       // coeff. de transformation (longitude) -> (eastings) x = g x X_A + X_B
@@ -52,8 +52,9 @@ struct ScannedMapView: View {
 
 
    @GestureState var dragState = DragState.inactive
+   var initialPos : CGPoint = .zero
 
-
+   @State private var menuPosition : CGPoint? = nil
    //MARK: - Initialisations -
 
    //-----------------------------------------------------------------------
@@ -118,11 +119,13 @@ struct ScannedMapView: View {
    func drawCroppedMap(geometry : GeometryProxy) ->  Image? {
       guard let _ = fileName else { return Image(systemName : "exclamationmark.circle")}
 
+      let width = geometry.size.width * inverseZoomFactor
+      let height = geometry.size.height * inverseZoomFactor
       let croppingRect : CGRect = CGRect(
-         x: (centreImage.x - deplacement.width) - geometry.size.width / 2 * inverseZoomFactor,
-         y: (centreImage.y - deplacement.height) - geometry.size.height /  2 * inverseZoomFactor,
-         width:  geometry.size.width * inverseZoomFactor,
-         height: geometry.size.height * inverseZoomFactor)
+         x: (centreImage.x - deplacement.width) - width / 2,
+         y: (centreImage.y - deplacement.height) - height / 2,
+         width: width,
+         height: height)
 
       if let cutImageRef = cgimg.cropping(to: croppingRect)
       {
@@ -291,7 +294,7 @@ struct ScannedMapView: View {
    func areNeighbours(_ p : CGPoint, _ q : CGPoint) -> Bool {
       /// carré de la distance de la boule
       let VICINITY : CGFloat = 200
-      return (p.x - q.x) * (p.x - q.x)  + (p.y - q.y) * (p.y - q.y) < VICINITY
+      return p.squaredDist(to: q) < VICINITY
    }
 
 
@@ -454,10 +457,12 @@ struct ScannedMapView: View {
    }
 
    fileprivate func startDragging(_ drag: DragGesture.Value?, _ state: inout ScannedMapView.DragState, _ geometry : GeometryProxy) {
+      print("StartDragging")
       if( drag != nil  &&
             selectedIndex.waypoint == nil &&
             selectedIndex.segment == nil)
       {
+         
          selectedIndex.waypoint = findSelectedWaypoint(compute: true, drag!.startLocation, geometry)
          if( selectedIndex.waypoint == nil)
          {
@@ -468,10 +473,43 @@ struct ScannedMapView: View {
             generator.selectionChanged()
          }
       }
-      state = .dragging(translation: drag?.translation ?? .zero, location: drag?.location ?? .zero)
+      print("drag : \(drag)")
+      switch state {
+      case .dragging(_, _, _) :
+         print("case .dragging : \(state)")
+         state = .dragging(translation: drag?.translation ?? .zero, location: drag?.location ?? .zero, initialPos : drag?.startLocation ?? .zero)
+
+      case .longPress(location: let initialPosition):
+         print("case .longPress : \(state)")
+         let location = drag?.location ?? .zero
+         //menuPosition = location
+         if (location.squaredDist(to: initialPosition) > 10) {
+            state = .dragging(translation: drag?.translation ?? .zero, location: drag?.location ?? .zero, initialPos : drag?.startLocation ?? .zero)
+            print("-> .dragging : \(state)")
+         }
+         
+      default:
+         print("case .default : \(state)")
+            //let location = drag
+         if let location = drag?.startLocation {
+         
+            state = .longPress(location: location)
+         }
+
+      }
+//      state = .dragging(translation: drag?.translation ?? .zero, location: drag?.location ?? .zero, initialPos : drag?.startLocation ?? .zero)
    }
 
+   
    fileprivate func endDragging(_ state: inout ScannedMapView.DragState) {
+//      switch state {
+//      case .longPress(let location):
+//         print("Menu \(location)")
+//         state = .inactive
+//      case .dragging(translation: <#T##CGSize#>, location: <#T##CGPoint#>, initialPos: <#T##CGPoint#>)
+//      }
+//
+      print("endDragging \(state)")
       state = .inactive
       selectedIndex.waypoint = nil
       selectedIndex.segment = nil
@@ -481,7 +519,7 @@ struct ScannedMapView: View {
 
    fileprivate func actionsOnDragEnd(_ drag: DragGesture.Value, _ geometry : GeometryProxy) {
       // Mettre à jour la position du point déplacé
-
+      
       if(selectedIndex.waypoint != nil)
       {
          modifySelectedWaypoint(drag.translation)
@@ -517,7 +555,7 @@ struct ScannedMapView: View {
 
          let minimumLongPressDuration = 0.5
          let longPressDrag = LongPressGesture(minimumDuration: minimumLongPressDuration)
-            .sequenced(before: DragGesture())
+            .sequenced(before: DragGesture(minimumDistance: -1, coordinateSpace: .local))
             .updating($dragState) { value, state, transaction in
                switch value {
                // Long press begins.
@@ -525,7 +563,9 @@ struct ScannedMapView: View {
                   state = .pressing
                // Long press confirmed, dragging may begin.
                case .second(true, let drag):
+                  //state = .longPress(location:drag?.startLocation ?? .zero)
                   startDragging(drag, &state, geometry)
+                  print("state :\(state)")
                // Dragging ended or the long press cancelled.
                default:
                   endDragging(&state)
@@ -542,12 +582,12 @@ struct ScannedMapView: View {
                .clipped()
                .onTapGesture(count: 2, perform: { toggleZoom() })
                .gesture(longPressDrag)
-               .onLongPressGesture(minimumDuration: 1, maximumDistance: 10, perform: {
-                  //TODO: #10 afficher le menu contextuel
-                  let impact = UIImpactFeedbackGenerator(style: .heavy)
-                  impact.impactOccurred()
-                  print("LongPress")
-               })
+//               .onLongPressGesture(minimumDuration: 1, maximumDistance: 10, perform: {
+//                  //TODO: #10 afficher le menu contextuel
+//                  let impact = UIImpactFeedbackGenerator(style: .heavy)
+//                  impact.impactOccurred()
+//                  print("LongPress")
+//               })
 
                // Déplacement de la carte
                .gesture(DragGesture()
