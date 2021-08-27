@@ -38,7 +38,9 @@ struct AvurnavRow: View {
             Text(avurnav.title)
                .font(.caption)
                .lineLimit(1)
+               
          }
+         
          .frame(height: 40.0)
 
          Spacer()
@@ -48,7 +50,9 @@ struct AvurnavRow: View {
             Image(systemName: "star.fill")
                .foregroundColor(.yellow)
          }
+         
       }
+      
    }
 }
 
