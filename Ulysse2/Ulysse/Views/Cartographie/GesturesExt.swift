@@ -12,13 +12,14 @@ extension ScannedMapView {
    enum DragState {
       case inactive
       case pressing
-      case dragging(translation: CGSize, location : CGPoint)
+      case longPress(location: CGPoint)
+      case dragging(translation: CGSize, location : CGPoint, initialPos : CGPoint)
 
       var translation: CGSize {
          switch self {
-         case .inactive, .pressing:
+         case .inactive, .pressing, .longPress:
             return .zero
-         case .dragging(let translation, _):
+         case .dragging(let translation, _, _):
             return translation
          }
       }
@@ -27,8 +28,21 @@ extension ScannedMapView {
          switch self {
          case .inactive, .pressing:
             return .zero
-         case .dragging(_, let location):
+         case .longPress(let location):
             return location
+         case .dragging(_, let location, _):
+            return location
+         }
+      }
+      
+      var initialPos : CGPoint {
+         switch self {
+         case .inactive, .pressing :
+            return .zero
+         case .longPress(let location):
+            return location
+         case .dragging(_, _, let initialPos):
+            return initialPos
          }
       }
 
@@ -36,14 +50,14 @@ extension ScannedMapView {
          switch self {
          case .inactive:
             return false
-         case .pressing, .dragging:
+         case .pressing,.longPress, .dragging:
             return true
          }
       }
 
       var isDragging: Bool {
          switch self {
-         case .inactive, .pressing:
+         case .inactive, .pressing, .longPress:
             return false
          case .dragging:
             return true
